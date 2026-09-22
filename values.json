@@ -153,6 +153,15 @@
     "status": "dropping"
   },
   {
+    "image": "https://cdn.discordapp.com/emojis/1550562416834781224.webp?size=44",
+    "name": "10M Titan Speaker Man",
+    "rarity": "Mythic",
+    "price": null,
+    "value": 34000,
+    "demand": "6/10",
+    "status": "dropping"
+  },
+  {
     "image": "./TowerImages/EngineerCameraMan.png",
     "name": "Engineer",
     "rarity": "Exclusive",
@@ -207,6 +216,15 @@
     "status": "stable"
   },
   {
+  "image": "https://cdn.discordapp.com/emojis/1550562355925094440.webp?size=44",
+  "name": "Present Camera Man",
+  "rarity": "Exclusive",
+  "price": 200,
+  "value": 38000,
+  "demand": "7/10",
+  "status": "dropping"
+  },
+  {
     "image": "./TowerImages/FreePaidScientistCrate.png",
     "name": "Scientist Crate (Paid)",
     "rarity": "Exclusive",
@@ -223,15 +241,6 @@
     "value": 100,
     "demand": "3/10",
     "status": "stable"
-  },
-  {
-    "image": "https://cdn.discordapp.com/emojis/1550562416834781224.webp?size=44",
-    "name": "10M Titan Speaker Man",
-    "rarity": "Event",
-    "price": null,
-    "value": 34000,
-    "demand": "6/10",
-    "status": "dropping"
   },
   {
     "image": "https://cdn.discordapp.com/emojis/1550562442130628658.webp?size=44",
@@ -252,30 +261,12 @@
     "status": "stable"
   },
   {
-    "image": "./TowerImages/PartyCrate.png",
-    "name": "Party Crate",
-    "rarity": "Event",
-    "price": null,
-    "value": 20,
-    "demand": "3/10",
-    "status": "stable"
-  },
-  {
     "image": "./TowerImages/BuilderCameraMan.png",
     "name": "Builder Camera Man",
     "rarity": "Event",
     "price": 250,
     "value": 3700,
     "demand": "2/10",
-    "status": "dropping"
-  },
-  {
-    "image": "https://cdn.discordapp.com/emojis/1550562355925094440.webp?size=44",
-    "name": "Present Camera Man",
-    "rarity": "Event",
-    "price": 200,
-    "value": 38000,
-    "demand": "7/10",
     "status": "dropping"
   },
   {
@@ -294,6 +285,15 @@
     "price": 250,
     "value": 12,
     "demand": "2/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/PartyCrate.png",
+    "name": "Party Crate",
+    "rarity": "Event",
+    "price": null,
+    "value": 20,
+    "demand": "3/10",
     "status": "stable"
   }
 ]
