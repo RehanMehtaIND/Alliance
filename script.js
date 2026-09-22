@@ -5,7 +5,7 @@ function applyTheme(theme) {
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
   themeToggle.setAttribute('aria-pressed', String(dark));
   themeToggle.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-  themeToggle.firstElementChild.textContent = dark ? '☀' : '☾';
+  themeToggle.setAttribute('aria-label', dark ? 'Light mode' : 'Dark mode');
 }
 applyTheme(document.documentElement.dataset.theme);
 themeToggle.addEventListener('click', () => {
@@ -14,7 +14,7 @@ themeToggle.addEventListener('click', () => {
   try { localStorage.setItem('atd.theme', theme); } catch { /* Theme still works without storage. */ }
 });
 
-const state = { allItems: [], currentPage: 1, itemsPerPage: 12, selectedRarity: '', searchTerm: '', sortMode: 'default', showTickets: false };
+const state = { allItems: [], currentPage: 1, itemsPerPage: 8, selectedRarity: '', searchTerm: '', sortMode: 'default', showTickets: false };
 const grid = document.querySelector('#items-grid');
 const message = document.querySelector('#message');
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -30,6 +30,7 @@ function element(tag, className, text) {
 }
 function filteredItems() {
   const items = state.allItems.filter(item => String(item.name || '').toLowerCase().includes(state.searchTerm) && (!state.selectedRarity || rarityKey(item) === state.selectedRarity));
+  if (state.sortMode === 'default') items.sort((a, b) => Number(rarityKey(b) === 'event') - Number(rarityKey(a) === 'event'));
   if (state.sortMode.startsWith('name-')) items.sort((a, b) => String(a.name).localeCompare(String(b.name)) * (state.sortMode === 'name-asc' ? 1 : -1));
   if (state.sortMode.startsWith('value-')) items.sort((a, b) => {
     const av = numericValue(a), bv = numericValue(b);
@@ -105,7 +106,7 @@ async function init() {
   const filters = document.querySelector('#rarity-filters');
   rarityNames.forEach(name => {
     const button = element('button', 'rarity-filter');
-    const icon = element('span', '', '◆');
+    const icon = element('span', '', '●');
     icon.setAttribute('aria-hidden', 'true');
     button.append(icon, document.createTextNode(name));
     button.type = 'button';
@@ -128,7 +129,7 @@ async function init() {
     document.querySelectorAll('.add-unit').forEach(button => { button.disabled = false; });
     render();
     document.querySelector('#search').addEventListener('input', event => { state.searchTerm = event.target.value.trim().toLowerCase(); state.currentPage = 1; render(); });
-    document.querySelector('#sort').addEventListener('change', event => { state.sortMode = event.target.value; state.currentPage = 1; render(); });
+    document.querySelector('#sort').addEventListener('change', event => { state.sortMode = event.target.value; document.querySelector('#sort-label').textContent = event.target.selectedOptions[0].textContent; state.currentPage = 1; render(); });
   } catch (error) {
     message.hidden = false;
     message.textContent = 'Unable to load value data.';
