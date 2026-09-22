@@ -1,0 +1,299 @@
+[
+  {
+    "image": "./TowerImages/SpeakerMan.png",
+    "name": "Speaker Man",
+    "rarity": "Basic",
+    "price": 100,
+    "value": 0,
+    "demand": "0/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/CameraMan.png",
+    "name": "Camera Man",
+    "rarity": "Uncommon",
+    "price": 100,
+    "value": 0,
+    "demand": "0/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/CameraWoman.png",
+    "name": "Camera Woman",
+    "rarity": "Rare",
+    "price": 150,
+    "value": 1,
+    "demand": "0/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LargeSpeakerMan.png",
+    "name": "Large Speaker Man",
+    "rarity": "Rare",
+    "price": 250,
+    "value": 1,
+    "demand": "0/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TVMan.png",
+    "name": "TV Man",
+    "rarity": "Rare",
+    "price": 200,
+    "value": 3,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "",
+    "name": "10M Camera Man",
+    "rarity": "Epic",
+    "price": 500,
+    "value": 5,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LargeCameraMan.png",
+    "name": "Large Camera Man",
+    "rarity": "Epic",
+    "price": 450,
+    "value": 4,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LargeTVMan.png",
+    "name": "Large TV Man",
+    "rarity": "Epic",
+    "price": 350,
+    "value": 4,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/PlungerCameraMan.png",
+    "name": "Plunger Camera Man",
+    "rarity": "Epic",
+    "price": 250,
+    "value": 5,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "",
+    "name": "10M TV Woman",
+    "rarity": "Legendary",
+    "price": 1000,
+    "value": 20,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/DarkSpeakerman.png",
+    "name": "Dark Speaker Man",
+    "rarity": "Legendary",
+    "price": 250,
+    "value": 15,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/SpeakerWoman.webp",
+    "name": "Speaker Woman",
+    "rarity": "Legendary",
+    "price": 1000,
+    "value": 15,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TitanSpeakerMan.png",
+    "name": "Titan Speaker Man",
+    "rarity": "Legendary",
+    "price": 1200,
+    "value": 15,
+    "demand": "2/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TitanTVMan.png",
+    "name": "Titan TV Man",
+    "rarity": "Legendary",
+    "price": 2000,
+    "value": 15,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TitanSpeakerMan20.png",
+    "name": "Titan Speaker Man 2.0",
+    "rarity": "Mythic",
+    "price": 2000,
+    "value": 250,
+    "demand": "7/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TitanCinemaMan.png",
+    "name": "Titan Cinema",
+    "rarity": "Mythic",
+    "price": 2000,
+    "value": 350,
+    "demand": "8/10",
+    "status": "stable"
+  },
+  {
+    "image": "https://cdn.discordapp.com/emojis/1550562313650835538.webp?size=44",
+    "name": "Upgraded Titan Camera Man",
+    "rarity": "Mythic",
+    "price": 4000,
+    "value": 600,
+    "demand": "5/10",
+    "status": "dropping"
+  },
+  {
+    "image": "./TowerImages/EngineerCameraMan.png",
+    "name": "Engineer",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 38000,
+    "demand": "10/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LargeScientistCameraman.png",
+    "name": "Large Camera Man",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 100,
+    "demand": "2/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/ScientistCameraMan.png",
+    "name": "Scientist Camera Man",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 4,
+    "demand": "1/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/DJSpeakerMan.png",
+    "name": "DJ Speaker Man",
+    "rarity": "Exclusive",
+    "price": 1250,
+    "value": 2000,
+    "demand": "7/10",
+    "status": "dropping"
+  },
+  {
+    "image": "./TowerImages/TitanCameraMan.png",
+    "name": "Titan Camera Man",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 3700,
+    "demand": "8/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/TVWoman.png",
+    "name": "TV Woman",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 3700,
+    "demand": "8/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/FreePaidScientistCrate.png",
+    "name": "Scientist Crate (Paid)",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 200,
+    "demand": "5/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/FreePaidScientistCrate.png",
+    "name": "Scientist Crate (Free)",
+    "rarity": "Exclusive",
+    "price": null,
+    "value": 100,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "https://cdn.discordapp.com/emojis/1550562416834781224.webp?size=44",
+    "name": "10M Titan Speaker Man",
+    "rarity": "Event",
+    "price": null,
+    "value": 34000,
+    "demand": "6/10",
+    "status": "dropping"
+  },
+  {
+    "image": "https://cdn.discordapp.com/emojis/1550562442130628658.webp?size=44",
+    "name": "10M Speaker Man",
+    "rarity": "Event",
+    "price": null,
+    "value": 68000,
+    "demand": "10/10",
+    "status": "dropping"
+  },
+  {
+    "image": "./TowerImages/PartyTitanTVMan.png",
+    "name": "Party Titan TV Man",
+    "rarity": "Event",
+    "price": null,
+    "value": 5200,
+    "demand": "8/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/PartyCrate.png",
+    "name": "Party Crate",
+    "rarity": "Event",
+    "price": null,
+    "value": 20,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/BuilderCameraMan.png",
+    "name": "Builder Camera Man",
+    "rarity": "Event",
+    "price": 250,
+    "value": 3700,
+    "demand": "2/10",
+    "status": "dropping"
+  },
+  {
+    "image": "https://cdn.discordapp.com/emojis/1550562355925094440.webp?size=44",
+    "name": "Present Camera Man",
+    "rarity": "Event",
+    "price": 200,
+    "value": 38000,
+    "demand": "7/10",
+    "status": "dropping"
+  },
+  {
+    "image": "./TowerImages/PartyCameraMan.png",
+    "name": "Party Camera Man",
+    "rarity": "Event",
+    "price": 125,
+    "value": 10,
+    "demand": "2/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/JesterSpeakerMan.png",
+    "name": "Jester Speaker Man",
+    "rarity": "Event",
+    "price": 250,
+    "value": 12,
+    "demand": "2/10",
+    "status": "stable"
+  }
+]

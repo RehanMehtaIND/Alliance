@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alliance TD · Value List</title>
+  <script>
+    try {
+      document.documentElement.dataset.theme = localStorage.getItem('atd.theme') === 'dark' ? 'dark' : 'light';
+    } catch { document.documentElement.dataset.theme = 'light'; }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app">
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" title="Switch to dark mode"><span aria-hidden="true">☾</span></button>
+    <nav class="top-navigation" aria-label="Main navigation">
+      <button id="list-tab" class="nav-button active" aria-current="page" aria-controls="list-section"><span aria-hidden="true">▥</span> Value List</button>
+      <button id="calculator-tab" class="nav-button" aria-controls="calculator-section"><span aria-hidden="true">⇄</span> Calculator</button>
+      <button class="nav-button updates" disabled><span aria-hidden="true">▤</span> Update Logs<span class="soon">SOON</span></button>
+    </nav>
+    <p class="subtitle">Discover values, track demand, and make better trades!</p>
+    <section id="list-section" class="list-section" aria-label="Value list">
+      <div class="value-display-controls"><p class="ticket-rate"><strong>40 value points = 1 ticket</strong> 🎟</p><button id="ticket-display-toggle" type="button" aria-pressed="false">Show in tickets <span class="toggle-track" aria-hidden="true"></span></button></div>
+    <div class="toolbar">
+      <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Search towers, units..." aria-label="Search towers, units"></label>
+      <label class="sort"><span aria-hidden="true">↕</span><span>Sort By:</span><select id="sort" aria-label="Sort by"><option value="default">Default</option><option value="value-asc">Value: Low to High</option><option value="value-desc">Value: High to Low</option><option value="name-asc">Name: A-Z</option><option value="name-desc">Name: Z-A</option></select><span aria-hidden="true">⌄</span></label>
+      <div class="rarity-filters" id="rarity-filters" aria-label="Filter by rarity"></div>
+    </div>
+    <section class="items-grid" id="items-grid" aria-label="Tower values" aria-busy="true"></section>
+    <p class="message" id="message" role="status">Loading values…</p>
+    <nav class="pagination" id="pagination" aria-label="Pages"></nav>
+    <footer class="footer-info"><span id="counter" aria-live="polite"></span><span><span class="crown" aria-hidden="true">♛</span> Fair Values. Happier Trades. A Stronger Community.</span></footer>
+    </section>
+    <section id="calculator-section" class="calculator-section" aria-label="Value calculator" hidden>
+      <p class="ticket-rate">🎟 1 Ticket = <strong>40 value points</strong></p>
+      <p id="calculator-loading" role="status">Loading units…</p>
+      <div class="offers" id="offers"></div>
+      <section class="trade-balance" aria-label="Trade comparison" aria-live="polite">
+        <h2>Trade balance</h2>
+        <div class="balance-summary"><div>Your offer<strong id="balance-your-total">0</strong></div><div class="verdict" id="verdict">Add items to compare</div><div>Their offer<strong id="balance-their-total">0</strong></div></div>
+        <div class="balance-track" aria-hidden="true"><div id="balance-fill"></div></div>
+        <p id="trade-difference">Build both offers to compare their value.</p>
+        <small>Comparison uses listed values. Demand and player preferences can affect trades.</small>
+      </section>
+    </section>
+    <dialog id="unit-picker" aria-labelledby="picker-title">
+      <div class="picker-heading"><h2 id="picker-title">Add to your offer</h2><button type="button" id="close-picker" aria-label="Close unit picker">×</button></div>
+      <input type="search" id="picker-search" placeholder="Search units or crates…" aria-label="Search units or crates">
+      <div id="picker-results" class="picker-results"></div>
+    </dialog>
+  </main>
+</body>
+</html>
