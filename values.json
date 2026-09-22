@@ -157,7 +157,7 @@
     "name": "10M Titan Speaker Man",
     "rarity": "Mythic",
     "price": null,
-    "value": 34000,
+    "value": 33000,
     "demand": "6/10",
     "status": "dropping"
   },
@@ -193,7 +193,7 @@
     "name": "DJ Speaker Man",
     "rarity": "Exclusive",
     "price": 1250,
-    "value": 2000,
+    "value": 2300,
     "demand": "7/10",
     "status": "dropping"
   },
@@ -202,7 +202,7 @@
     "name": "Titan Camera Man",
     "rarity": "Exclusive",
     "price": null,
-    "value": 3700,
+    "value": 3400,
     "demand": "8/10",
     "status": "stable"
   },
@@ -211,7 +211,7 @@
     "name": "TV Woman",
     "rarity": "Exclusive",
     "price": null,
-    "value": 3700,
+    "value": 3400,
     "demand": "8/10",
     "status": "stable"
   },
@@ -243,11 +243,11 @@
     "status": "stable"
   },
   {
-    "image": "https://cdn.discordapp.com/emojis/1550562442130628658.webp?size=44",
+    "image": "./TowerImages/10MSpeakerMan.png",
     "name": "10M Speaker Man",
     "rarity": "Event",
     "price": null,
-    "value": 68000,
+    "value": 62000,
     "demand": "10/10",
     "status": "dropping"
   },
@@ -293,6 +293,33 @@
     "rarity": "Event",
     "price": null,
     "value": 20,
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LuckyBlockYellow.png",
+    "name": "Lucky Block Yellow",
+    "rarity": "Event",
+    "price": null,
+    "value": "n/a",
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LuckyBlockGreen.png",
+    "name": "Lucky Block Green",
+    "rarity": "Event",
+    "price": null,
+    "value": "n/a",
+    "demand": "3/10",
+    "status": "stable"
+  },
+  {
+    "image": "./TowerImages/LuckyBlockRed.png",
+    "name": "Lucky Block Red",
+    "rarity": "Event",
+    "price": null,
+    "value": 2000,
     "demand": "3/10",
     "status": "stable"
   }
