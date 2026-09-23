@@ -1,4 +1,4 @@
-import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText } from '../lib/trade.js';
+import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText, verdictFor } from '../lib/trade.js';
 
 // The model only reads the trade (which units are on which side). Scoring is done
 // here from values.json so verdicts always match the published value list.
@@ -29,13 +29,6 @@ ${SLANG_RULE}
 - Tickets are a currency; put ticket amounts in the tickets fields, not as units.
 - Anything that matches no unit on the list goes in unrecognized, never forced onto a wrong unit.
 - If the input is not a trade at all, set is_trade to false and leave both sides empty.`;
-
-function verdictFor(gives, gets) {
-  const diff = gets.total - gives.total;
-  const bigger = Math.max(gives.total, gets.total);
-  if (bigger === 0 || Math.abs(diff) <= bigger * FAIR_MARGIN) return 'F';
-  return diff > 0 ? 'W' : 'L';
-}
 
 export default aiHandler(async prompt => {
   const trade = await readWithModel('trade', tradeSchema, SYSTEM_PROMPT, prompt);

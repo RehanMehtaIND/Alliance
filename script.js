@@ -22,6 +22,9 @@ const ticketFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 }
 const rarityNames = ['Basic', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Exclusive', 'Event'];
 const numericValue = item => item.value == null || String(item.value).trim() === '' ? null : Number(String(item.value).replaceAll(',', ''));
 const rarityKey = item => String(item.rarity || 'Unknown').toLowerCase();
+// Formats a value in points, or in tickets when the ticket toggle is on.
+const displayAmount = points => state.showTickets ? `🎟 ${ticketFormat.format(points / TICKET_VALUE)}` : numberFormat.format(points);
+const displayUnit = () => state.showTickets ? 'tickets' : 'points';
 function element(tag, className, text) {
   const node = document.createElement(tag);
   if (className) node.className = className;
@@ -141,7 +144,7 @@ async function init() {
   }
 }
 
-const TICKET_VALUE = 40;
+const TICKET_VALUE = 55;
 const MAX_AMOUNT = 1000000;
 const offers = { your: { units: new Map(), tickets: 0 }, their: { units: new Map(), tickets: 0 } };
 let pickerSide = 'your';
@@ -156,11 +159,11 @@ function offerTotal(offer) {
 }
 function updateBalance() {
   const yours = offerTotal(offers.your), theirs = offerTotal(offers.their);
-  document.querySelector('#balance-your-total').textContent = numberFormat.format(yours);
-  document.querySelector('#balance-their-total').textContent = numberFormat.format(theirs);
+  document.querySelector('#balance-your-total').textContent = displayAmount(yours);
+  document.querySelector('#balance-their-total').textContent = displayAmount(theirs);
   for (const side of ['your', 'their']) {
-    document.querySelector(`#${side}-total`).textContent = `${numberFormat.format(offerTotal(offers[side]))} points`;
-    document.querySelector(`#${side}-ticket-value`).textContent = `${numberFormat.format(offers[side].tickets * TICKET_VALUE)} points`;
+    document.querySelector(`#${side}-total`).textContent = `${displayAmount(offerTotal(offers[side]))} ${displayUnit()}`;
+    document.querySelector(`#${side}-ticket-value`).textContent = `${displayAmount(offers[side].tickets * TICKET_VALUE)} ${displayUnit()}`;
   }
   const hasOffer = side => offers[side].units.size > 0 || offers[side].tickets > 0;
   const ready = hasOffer('your') && hasOffer('their');
@@ -169,7 +172,7 @@ function updateBalance() {
   verdict.textContent = !ready ? 'Add items to both offers' : diff === 0 ? 'Equal value' : diff > 0 ? 'Win for you' : 'Loss for you';
   verdict.dataset.result = !ready || diff === 0 ? 'equal' : diff > 0 ? 'win' : 'loss';
   document.querySelector('#balance-fill').style.width = `${yours + theirs ? yours / (yours + theirs) * 100 : 50}%`;
-  document.querySelector('#trade-difference').textContent = !ready ? 'Build both offers to compare their value.' : diff === 0 ? 'Both offers have the same listed value.' : `${diff > 0 ? 'You receive' : 'You give'} ${numberFormat.format(Math.abs(diff))} more value points.${yours > 0 ? ` (${numberFormat.format(Math.round(Math.abs(diff) / yours * 1000) / 10)}% of your offer.)` : ''}`;
+  document.querySelector('#trade-difference').textContent = !ready ? 'Build both offers to compare their value.' : diff === 0 ? 'Both offers have the same listed value.' : `${diff > 0 ? 'You receive' : 'You give'} ${displayAmount(Math.abs(diff))} more ${state.showTickets ? 'tickets of value' : 'value points'}.${yours > 0 ? ` (${numberFormat.format(Math.round(Math.abs(diff) / yours * 1000) / 10)}% of your offer.)` : ''}`;
 }
 function renderOffer(side) {
   const container = document.querySelector(`#${side}-units`);
@@ -203,7 +206,7 @@ function renderPicker() {
     const button = element('button', 'picker-item'); button.type = 'button';
     button.disabled = value === null || !Number.isFinite(value) || value < 0;
     if (item.image) { const image = element('img'); image.src = item.image; image.alt = ''; image.loading = 'lazy'; image.addEventListener('error', () => image.remove()); button.append(image); }
-    const details = element('span'); details.append(element('strong', '', item.name), element('small', '', `${item.rarity} · ${button.disabled ? 'Value unavailable' : numberFormat.format(value) + ' points'}`)); button.append(details, element('span', '', '+'));
+    const details = element('span'); details.append(element('strong', '', item.name), element('small', '', `${item.rarity} · ${button.disabled ? 'Value unavailable' : `${displayAmount(value)} ${displayUnit()}`}`)); button.append(details, element('span', '', '+'));
     button.addEventListener('click', () => {
       offers[pickerSide].units.set(index, Math.min(MAX_AMOUNT, (offers[pickerSide].units.get(index) || 0) + 1));
       renderOffer(pickerSide); document.querySelector('#unit-picker').close();
@@ -239,14 +242,21 @@ function initCalculator() {
   document.querySelector('#close-picker').addEventListener('click', () => document.querySelector('#unit-picker').close());
 }
 
-const ticketDisplayToggle = document.querySelector('#ticket-display-toggle');
+// One ticket preference shared by the toggles in every view.
+const ticketDisplayToggles = document.querySelectorAll('.ticket-display-toggle');
 try { state.showTickets = localStorage.getItem('atd.showTickets') === 'true'; } catch { /* Default to points. */ }
-ticketDisplayToggle.setAttribute('aria-pressed', String(state.showTickets));
-ticketDisplayToggle.addEventListener('click', () => {
-  state.showTickets = !state.showTickets;
-  ticketDisplayToggle.setAttribute('aria-pressed', String(state.showTickets));
-  try { localStorage.setItem('atd.showTickets', String(state.showTickets)); } catch { /* Works without storage. */ }
-  if (state.allItems.length) render();
+ticketDisplayToggles.forEach(toggle => {
+  toggle.setAttribute('aria-pressed', String(state.showTickets));
+  toggle.addEventListener('click', () => {
+    state.showTickets = !state.showTickets;
+    ticketDisplayToggles.forEach(other => other.setAttribute('aria-pressed', String(state.showTickets)));
+    try { localStorage.setItem('atd.showTickets', String(state.showTickets)); } catch { /* Works without storage. */ }
+    if (state.allItems.length) render();
+    updateBalance();
+    if (document.querySelector('#unit-picker').open) renderPicker();
+    if (aiResult.result) renderAiResult(aiResult.result);
+    if (adviceResult.result) renderAdviceResult(adviceResult.result);
+  });
 });
 initCalculator();
 init();
@@ -260,19 +270,20 @@ function tradeSide(title, side) {
     const row = element('li');
     if (line.image) { const image = element('img'); image.src = line.image; image.alt = ''; image.addEventListener('error', () => image.remove()); row.append(image); }
     const details = element('span');
-    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}`), element('small', '', `${numberFormat.format(line.value)} each · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
-    row.append(details, element('b', '', numberFormat.format(line.total)));
+    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}`), element('small', '', `${displayAmount(line.value)} each · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
+    row.append(details, element('b', '', displayAmount(line.total)));
     list.append(row);
   }
   if (side.tickets) {
     const row = element('li');
-    row.append(element('span', '', `🎟 ${numberFormat.format(side.tickets)} tickets`), element('b', '', numberFormat.format(side.tickets * TICKET_VALUE)));
+    row.append(element('span', '', `🎟 ${numberFormat.format(side.tickets)} tickets`), element('b', '', displayAmount(side.tickets * TICKET_VALUE)));
     list.append(row);
   }
-  panel.append(list, element('div', 'ai-side-total', `Total ${numberFormat.format(side.total)}`));
+  panel.append(list, element('div', 'ai-side-total', `Total ${displayAmount(side.total)}`));
   return panel;
 }
 function renderAiResult(result) {
+  aiResult.result = result;
   aiResult.replaceChildren();
   aiResult.hidden = false;
   if (!result.isTrade) {
@@ -284,7 +295,7 @@ function renderAiResult(result) {
     header.dataset.result = result.verdict || 'none';
     const diff = Math.abs(result.difference);
     const percent = Math.round(diff / Math.max(result.gives.total, result.gets.total) * 1000) / 10;
-    const summary = !result.verdict ? 'This trade has a unit whose value depends on its serial number. See the note below.' : result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${numberFormat.format(diff)} more value (${percent}%). Fair means within ${result.fairMargin * 100}%.`;
+    const summary = !result.verdict ? 'This trade has a unit whose value depends on its serial number. See the note below.' : result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${displayAmount(diff)} more ${state.showTickets ? 'tickets of value' : 'value'} (${percent}%). Fair means within ${result.fairMargin * 100}%.`;
     header.append(element('span', 'ai-letter', letter), element('div', '', ''));
     header.lastChild.append(element('strong', '', label), element('p', '', summary));
     const sides = element('div', 'ai-sides');
@@ -304,6 +315,7 @@ function aiNotes(result) {
 }
 const adviceResult = document.querySelector('#advice-result');
 function renderAdviceResult(result) {
+  adviceResult.result = result;
   adviceResult.replaceChildren();
   adviceResult.hidden = false;
   if (!result.isQuestion) {
@@ -311,14 +323,17 @@ function renderAdviceResult(result) {
   } else {
     const buying = result.direction === 'buying';
     const heading = element('div', 'advice-heading');
-    heading.append(element('strong', '', result.suggestions.length ? buying ? 'Offer one of these' : result.direction === 'selling' ? 'Ask for one of these' : 'Fair trades for it' : 'No suggestions'));
-    if (result.suggestions.length) heading.append(element('p', '', `Each option is within ${result.fairMargin * 100}% of the listed value.${result.ticketEquivalent ? ` In tickets, that's about ${numberFormat.format(result.ticketEquivalent)}.` : ''}`));
+    const ticketsOnly = result.payment === 'tickets' && result.suggestions.length;
+    const ticketCount = ticketsOnly ? numberFormat.format(result.suggestions[0].tickets) : '';
+    heading.append(element('strong', '', ticketsOnly ? `${buying ? 'Offer' : result.direction === 'selling' ? 'Ask for' : 'Worth'} about ${ticketCount} tickets` : result.suggestions.length ? buying ? 'Offer one of these' : result.direction === 'selling' ? 'Ask for one of these' : 'Fair trades for it' : 'No suggestions'));
+    const percentText = gain => `${gain > 0 ? '+' : gain < 0 ? '−' : ''}${Math.round(Math.abs(gain) * 1000) / 10}%`;
+    const goalText = result.goal === 'profit' ? `Aiming for about ${percentText(result.goalGain)} in your favour. Big wins are harder to get accepted.` : result.goal === 'overpay' ? `Aiming for you to overpay by about ${percentText(-result.goalGain).slice(1)}.` : `Each option is within ${result.fairMargin * 100}% of the listed value.`;
+    if (result.suggestions.length) heading.append(element('p', '', `${goalText}${state.showTickets ? ` In points, that's ${numberFormat.format(result.target.total)}.` : result.ticketEquivalent && result.payment === 'any' ? ` In tickets, that's about ${numberFormat.format(result.ticketEquivalent)}.` : ''}`));
     adviceResult.append(heading, tradeSide(buying ? 'Unit you want' : 'Your unit', result.target));
     if (result.suggestions.length) {
       const options = element('div', 'ai-sides');
       result.suggestions.forEach((option, index) => {
-        const diff = option.difference === 0 ? 'same value' : `${option.difference > 0 ? '+' : '−'}${numberFormat.format(Math.abs(option.difference))} vs yours`;
-        options.append(tradeSide(`Option ${index + 1} · ${diff}`, option));
+        options.append(tradeSide(`${ticketsOnly ? 'Tickets' : `Option ${index + 1}`} · ${option.verdict} · ${percentText(option.gain)} for you`, option));
       });
       adviceResult.append(options);
     }
