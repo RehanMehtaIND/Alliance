@@ -21,6 +21,7 @@
     <nav class="top-navigation" aria-label="Main navigation">
       <button id="list-tab" class="nav-button active" aria-current="page" aria-controls="list-section"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><g fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></g></svg> Value List</button>
       <button id="calculator-tab" class="nav-button" aria-controls="calculator-section"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M4 7h16m-5-5 5 5-5 5M20 17H4m5-5-5 5 5 5" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Calculator</button>
+      <button id="ai-tab" class="nav-button" aria-controls="ai-section"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M12 2.5l2.2 6.3 6.3 2.2-6.3 2.2L12 19.5l-2.2-6.3L3.5 11l6.3-2.2L12 2.5Z" fill="currentColor"/><path d="M19 16.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1Z" fill="currentColor"/></svg> AI Check</button>
       <button class="nav-button updates" disabled><svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M6 2.5h8l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-17a1 1 0 0 1 1-1Z" fill="currentColor" opacity=".18"/><path d="M14 2.5H6a1 1 0 0 0-1 1v17a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-13m-5-5 5 5h-5v-5ZM8.5 12h7M8.5 16h7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg> Update Logs<span class="soon">SOON</span></button>
     </nav>
     <p class="subtitle">Discover values, track demand, and make better trades!</p>
@@ -47,6 +48,21 @@
         <p id="trade-difference">Build both offers to compare their value.</p>
         <small>Comparison uses listed values. Demand and player preferences can affect trades.</small>
       </section>
+    </section>
+    <section id="ai-section" class="ai-section" aria-label="AI trade check" hidden>
+      <form id="ai-form" class="ai-panel">
+        <h2>Is it a W, L or F?</h2>
+        <p class="ai-hint">Type the trade the way you'd say it, or add a screenshot of the trade window.</p>
+        <textarea id="ai-prompt" rows="3" maxlength="1000" placeholder="e.g. 2 party titan tv man, a builder cam, a dj for engineer" aria-label="Describe the trade"></textarea>
+        <div class="ai-image-row">
+          <label class="ai-upload">📷 Add screenshot<input id="ai-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
+          <span class="ai-paste-hint">or paste an image</span>
+          <div id="ai-preview" class="ai-preview" hidden><img alt="Screenshot to check"><button type="button" id="ai-remove-image" aria-label="Remove screenshot">×</button></div>
+        </div>
+        <button id="ai-submit" type="submit" class="add-unit">Check trade</button>
+        <p id="ai-status" class="ai-status" role="status"></p>
+      </form>
+      <section id="ai-result" class="ai-result" aria-live="polite" hidden></section>
     </section>
     <dialog id="unit-picker" aria-labelledby="picker-title">
       <div class="picker-heading"><h2 id="picker-title">Add to your offer</h2><button type="button" id="close-picker" aria-label="Close unit picker">×</button></div>

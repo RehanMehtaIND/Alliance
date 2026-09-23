@@ -213,9 +213,10 @@ function renderPicker() {
   if (!results.children.length) results.append(element('p', '', 'No units or crates found.'));
 }
 function initCalculator() {
-  for (const view of ['list', 'calculator']) {
+  const views = ['list', 'calculator', 'ai'];
+  for (const view of views) {
     document.querySelector(`#${view}-tab`).addEventListener('click', () => {
-      for (const target of ['list', 'calculator']) {
+      for (const target of views) {
         const active = target === view, button = document.querySelector(`#${target}-tab`);
         document.querySelector(`#${target}-section`).hidden = !active;
         button.classList.toggle('active', active);
@@ -249,3 +250,119 @@ ticketDisplayToggle.addEventListener('click', () => {
 });
 initCalculator();
 init();
+
+const MAX_IMAGE_SIDE = 1568;
+const aiForm = document.querySelector('#ai-form');
+const aiStatus = document.querySelector('#ai-status');
+const aiResult = document.querySelector('#ai-result');
+const aiPreview = document.querySelector('#ai-preview');
+let aiImage = '';
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(image.width * scale);
+      canvas.height = Math.round(image.height * scale);
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file is not an image we can read.')); };
+    image.src = url;
+  });
+}
+async function setAiImage(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  try {
+    aiImage = await shrinkImage(file);
+    aiPreview.querySelector('img').src = aiImage;
+    aiPreview.hidden = false;
+    aiStatus.textContent = '';
+  } catch (error) {
+    aiStatus.textContent = error.message;
+  }
+}
+function clearAiImage() {
+  aiImage = '';
+  aiPreview.hidden = true;
+  aiPreview.querySelector('img').removeAttribute('src');
+  document.querySelector('#ai-image').value = '';
+}
+function tradeSide(title, side) {
+  const panel = element('div', 'ai-side');
+  panel.append(element('h3', '', title));
+  const list = element('ul');
+  for (const line of side.lines) {
+    const row = element('li');
+    if (line.image) { const image = element('img'); image.src = line.image; image.alt = ''; image.addEventListener('error', () => image.remove()); row.append(image); }
+    const details = element('span');
+    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}`), element('small', '', `${numberFormat.format(line.value)} each · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
+    row.append(details, element('b', '', numberFormat.format(line.total)));
+    list.append(row);
+  }
+  if (side.tickets) {
+    const row = element('li');
+    row.append(element('span', '', `🎟 ${numberFormat.format(side.tickets)} tickets`), element('b', '', numberFormat.format(side.tickets * TICKET_VALUE)));
+    list.append(row);
+  }
+  panel.append(list, element('div', 'ai-side-total', `Total ${numberFormat.format(side.total)}`));
+  return panel;
+}
+function renderAiResult(result) {
+  aiResult.replaceChildren();
+  aiResult.hidden = false;
+  if (!result.isTrade) {
+    aiResult.append(element('p', 'ai-note', 'Couldn’t find a full trade in that. Name what each side gives, like “2 party titan tv for engineer”.'));
+  } else {
+    const labels = { W: ['W', 'Win for you'], L: ['L', 'Loss for you'], F: ['F', 'Fair trade'] };
+    const [letter, label] = labels[result.verdict];
+    const header = element('div', 'ai-verdict');
+    header.dataset.result = result.verdict;
+    const diff = Math.abs(result.difference);
+    const percent = Math.round(diff / Math.max(result.gives.total, result.gets.total) * 1000) / 10;
+    header.append(element('span', 'ai-letter', letter), element('div', '', ''));
+    header.lastChild.append(element('strong', '', label), element('p', '', result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${numberFormat.format(diff)} more value (${percent}%). Fair means within ${result.fairMargin * 100}%.`));
+    const sides = element('div', 'ai-sides');
+    sides.append(tradeSide('You give', result.gives), tradeSide('You get', result.gets));
+    aiResult.append(header, sides);
+  }
+  const notes = [...(result.assumptions || []), ...(result.unrecognized || []).map(name => `Not on the value list, so not counted: ${name}`)];
+  if (notes.length) {
+    const list = element('ul', 'ai-notes');
+    notes.forEach(note => list.append(element('li', '', note)));
+    aiResult.append(list);
+  }
+  aiResult.append(element('small', '', 'Verdict uses listed values. Demand and player preferences can affect trades.'));
+}
+function initAiCheck() {
+  document.querySelector('#ai-image').addEventListener('change', event => setAiImage(event.target.files[0]));
+  document.querySelector('#ai-remove-image').addEventListener('click', clearAiImage);
+  document.addEventListener('paste', event => {
+    if (document.querySelector('#ai-section').hidden) return;
+    const file = [...event.clipboardData.files].find(item => item.type.startsWith('image/'));
+    if (file) { event.preventDefault(); setAiImage(file); }
+  });
+  aiForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const prompt = document.querySelector('#ai-prompt').value.trim();
+    if (!prompt && !aiImage) { aiStatus.textContent = 'Describe the trade or add a screenshot.'; return; }
+    const submit = document.querySelector('#ai-submit');
+    submit.disabled = true;
+    aiStatus.textContent = 'Reading the trade…';
+    try {
+      const response = await fetch('/api/trade-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, image: aiImage }) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'The AI check is unavailable. Try again shortly.');
+      aiStatus.textContent = '';
+      renderAiResult(result);
+    } catch (error) {
+      aiStatus.textContent = error.message;
+    } finally {
+      submit.disabled = false;
+    }
+  });
+}
+initAiCheck();
