@@ -153,3 +153,97 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
   color: var(--muted);
   background: transparent;
 }
+
+/* Responsive layout: content sets card height, controls keep usable touch targets. */
+body { min-width: 0; }
+.list-section, .calculator-section, .offer-panel { min-width: 0; }
+.items-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.items-grid .card { aspect-ratio: auto; }
+.items-grid .image-area { flex: 1; }
+.items-grid .image-area img {
+  position: static;
+  width: 100%;
+  height: clamp(120px, 14vw, 190px);
+  flex-shrink: 0;
+  padding: 8px;
+}
+.items-grid .image-area:has(.placeholder:not([hidden])) { padding-top: 140px; }
+.items-grid .image-area:has(img) { padding-top: 10px; }
+.items-grid .card h2 { margin-top: auto; }
+.card-bottom .value { flex-wrap: wrap; justify-content: center; white-space: normal; }
+.pagination { flex-wrap: wrap; max-width: 100%; }
+.pagination button, .pagination .arrow { width: 44px; height: 44px; }
+#ticket-display-toggle, .clear-offer, .add-unit { min-height: 44px; }
+.offer-total { flex-wrap: wrap; }
+.offer-total strong, .balance-summary strong { overflow-wrap: anywhere; min-width: 0; }
+.offer-units { grid-template-columns: repeat(auto-fill, minmax(min(130px, 100%), 1fr)); }
+.offer-item { padding-top: 44px; }
+.remove-unit { top: 3px; right: 3px; width: 36px; height: 36px; }
+.quantity { flex-wrap: wrap; }
+.quantity input { width: 100%; max-width: 100px; min-height: 44px; }
+#unit-picker[open] { display: flex; flex-direction: column; overflow: hidden; max-height: 90dvh; }
+.picker-heading, #picker-search { flex-shrink: 0; }
+#close-picker { width: 44px; height: 44px; flex-shrink: 0; }
+.picker-results { min-height: 0; max-height: none; overflow-y: auto; overscroll-behavior: contain; padding: 4px; }
+.picker-item { flex-shrink: 0; }
+.picker-item img { flex-shrink: 0; }
+.picker-item > span:first-of-type { min-width: 0; overflow-wrap: anywhere; }
+body:has(#unit-picker[open]) { overflow: hidden; }
+
+@media (max-width: 1000px) {
+  .items-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .offers { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  :root .app { padding-top: calc(78px + env(safe-area-inset-top, 0px)); }
+  :root .theme-toggle { top: calc(16px + env(safe-area-inset-top, 0px)); }
+}
+@media (max-width: 650px) {
+  :root .app {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  }
+  .top-navigation { width: 100%; flex-wrap: nowrap; }
+  .top-navigation .nav-button, .top-navigation #list-tab { font-size: 12px; min-width: 0; min-height: 48px; height: auto; padding: 8px 4px; }
+  .top-navigation .updates { flex-direction: column; gap: 2px; font-size: 11px; }
+  .top-navigation .updates .nav-icon { display: none; }
+  .top-navigation .soon { position: static; padding: 2px 5px; font-size: 7px; }
+  .value-display-controls { width: 100%; gap: 8px 16px; }
+  .value-display-controls .ticket-rate { font-size: 12px; }
+  .toolbar .search { flex: 1 1 100%; height: 48px; }
+  .toolbar .sort { flex: 1 1 100%; height: 48px; }
+  .sort-copy { flex-direction: row; align-items: center; gap: 8px; }
+  .toolbar .rarity-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .toolbar .rarity-filter { height: 44px; font-size: 11px; }
+  .rarity-filter > span { display: none; }
+  .search input, .sort select, .calculator-section input, #picker-search { font-size: 16px; }
+  .items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .items-grid .image-area img { height: clamp(100px, 30vw, 180px); }
+  .items-grid .card h2 { font-size: 14px; }
+  .card-bottom { flex-direction: column; justify-content: center; }
+  .offer-units { min-height: 140px; padding: 16px 0; }
+  .offer-empty { margin: 30px 0; }
+  .offer-item h3 { font-size: 13px; }
+  .offer-item small { font-size: 11px; }
+  .remove-unit { width: 44px; height: 44px; }
+  .offer-item { padding-top: 50px; }
+  .ticket-input input { min-height: 44px; }
+  .balance-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .balance-summary .verdict { grid-column: 1 / -1; grid-row: 2; width: auto; }
+  .balance-summary strong { font-size: 21px; }
+  .footer-info { text-align: center; line-height: 1.6; }
+  :root #unit-picker { width: calc(100% - 16px); max-height: calc(100dvh - 16px); padding: 16px; border-radius: 20px; }
+}
+@media (max-width: 359px) {
+  .top-navigation .nav-button, .top-navigation #list-tab { flex-direction: column; gap: 3px; font-size: 11px; }
+  .toolbar .rarity-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .items-grid { grid-template-columns: minmax(0, 1fr); }
+  .items-grid .image-area img { height: 170px; }
+}
+@media (pointer: coarse) {
+  .search input, .sort select, .calculator-section input, #picker-search { font-size: 16px; }
+  .toolbar .rarity-filter { min-height: 44px; }
+  .remove-unit { width: 44px; height: 44px; }
+  .offer-item { padding-top: 50px; }
+}
