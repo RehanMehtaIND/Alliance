@@ -251,8 +251,6 @@ ticketDisplayToggle.addEventListener('click', () => {
 initCalculator();
 init();
 
-const aiForm = document.querySelector('#ai-form');
-const aiStatus = document.querySelector('#ai-status');
 const aiResult = document.querySelector('#ai-result');
 function tradeSide(title, side) {
   const panel = element('div', 'ai-side');
@@ -293,33 +291,64 @@ function renderAiResult(result) {
     sides.append(tradeSide('You give', result.gives), tradeSide('You get', result.gets));
     aiResult.append(header, sides);
   }
-  const notes = [...(result.assumptions || []), ...(result.unrecognized || []).map(name => `Not on the value list, so not counted: ${name}`)];
-  if (notes.length) {
-    const list = element('ul', 'ai-notes');
-    notes.forEach(note => list.append(element('li', '', note)));
-    aiResult.append(list);
-  }
+  const notes = aiNotes(result);
+  if (notes) aiResult.append(notes);
   aiResult.append(element('small', '', 'Verdict uses listed values. Demand and player preferences can affect trades.'));
 }
-function initAiCheck() {
-  aiForm.addEventListener('submit', async event => {
+function aiNotes(result) {
+  const notes = [...(result.assumptions || []), ...(result.unrecognized || []).map(name => `Not on the value list, so not counted: ${name}`)];
+  if (!notes.length) return null;
+  const list = element('ul', 'ai-notes');
+  notes.forEach(note => list.append(element('li', '', note)));
+  return list;
+}
+const adviceResult = document.querySelector('#advice-result');
+function renderAdviceResult(result) {
+  adviceResult.replaceChildren();
+  adviceResult.hidden = false;
+  if (!result.isQuestion) {
+    adviceResult.append(element('p', 'ai-note', 'Couldn’t tell which unit you mean. Try something like “what should I ask for my tcm?”.'));
+  } else {
+    const buying = result.direction === 'buying';
+    const heading = element('div', 'advice-heading');
+    heading.append(element('strong', '', result.suggestions.length ? buying ? 'Offer one of these' : result.direction === 'selling' ? 'Ask for one of these' : 'Fair trades for it' : 'No suggestions'));
+    if (result.suggestions.length) heading.append(element('p', '', `Each option is within ${result.fairMargin * 100}% of the listed value.${result.ticketEquivalent ? ` In tickets, that's about ${numberFormat.format(result.ticketEquivalent)}.` : ''}`));
+    adviceResult.append(heading, tradeSide(buying ? 'Unit you want' : 'Your unit', result.target));
+    if (result.suggestions.length) {
+      const options = element('div', 'ai-sides');
+      result.suggestions.forEach((option, index) => {
+        const diff = option.difference === 0 ? 'same value' : `${option.difference > 0 ? '+' : '−'}${numberFormat.format(Math.abs(option.difference))} vs yours`;
+        options.append(tradeSide(`Option ${index + 1} · ${diff}`, option));
+      });
+      adviceResult.append(options);
+    }
+  }
+  const notes = aiNotes(result);
+  if (notes) adviceResult.append(notes);
+  adviceResult.append(element('small', '', 'Suggestions use listed values. Demand and player preferences can affect trades.'));
+}
+function initAiForm(name, url, busyText, render) {
+  const form = document.querySelector(`#${name}-form`);
+  const status = document.querySelector(`#${name}-status`);
+  form.addEventListener('submit', async event => {
     event.preventDefault();
-    const prompt = document.querySelector('#ai-prompt').value.trim();
-    if (!prompt) { aiStatus.textContent = 'Describe the trade first.'; return; }
-    const submit = document.querySelector('#ai-submit');
+    const prompt = document.querySelector(`#${name}-prompt`).value.trim();
+    if (!prompt) { status.textContent = 'Type something first.'; return; }
+    const submit = document.querySelector(`#${name}-submit`);
     submit.disabled = true;
-    aiStatus.textContent = 'Reading the trade…';
+    status.textContent = busyText;
     try {
-      const response = await fetch('/api/trade-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt }) });
+      const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'The AI check is unavailable. Try again shortly.');
-      aiStatus.textContent = '';
-      renderAiResult(result);
+      status.textContent = '';
+      render(result);
     } catch (error) {
-      aiStatus.textContent = error.message;
+      status.textContent = error.message;
     } finally {
       submit.disabled = false;
     }
   });
 }
-initAiCheck();
+initAiForm('ai', '/api/trade-check', 'Reading the trade…', renderAiResult);
+initAiForm('advice', '/api/trade-advice', 'Finding fair trades…', renderAdviceResult);

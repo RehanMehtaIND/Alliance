@@ -58,6 +58,14 @@
         <p id="ai-status" class="ai-status" role="status"></p>
       </form>
       <section id="ai-result" class="ai-result" aria-live="polite" hidden></section>
+      <form id="advice-form" class="ai-panel">
+        <h2>What's a fair trade for it?</h2>
+        <p class="ai-hint">Ask what to ask for your unit, or what to offer for one you want.</p>
+        <textarea id="advice-prompt" rows="3" maxlength="1000" placeholder="e.g. what should I ask for my tcm? / what should I trade for an engineer?" aria-label="Ask about a unit"></textarea>
+        <button id="advice-submit" type="submit" class="add-unit">Find fair trades</button>
+        <p id="advice-status" class="ai-status" role="status"></p>
+      </form>
+      <section id="advice-result" class="ai-result" aria-live="polite" hidden></section>
     </section>
     <dialog id="unit-picker" aria-labelledby="picker-title">
       <div class="picker-heading"><h2 id="picker-title">Add to your offer</h2><button type="button" id="close-picker" aria-label="Close unit picker">×</button></div>
