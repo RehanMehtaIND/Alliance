@@ -7,10 +7,8 @@ import { join } from 'node:path';
 const TICKET_VALUE = 40;
 const FAIR_MARGIN = 0.1; // Within 10% of the bigger side counts as fair.
 const MAX_PROMPT_LENGTH = 1000;
-const MAX_IMAGE_BYTES = 3_500_000;
-// Groq's only vision model; it also supports strict JSON-schema output.
+// Supports strict JSON-schema output on Groq.
 const MODEL = 'qwen/qwen3.8-27b';
-const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
 const units = JSON.parse(readFileSync(join(process.cwd(), 'values.json'), 'utf8'));
 const unitByName = new Map(units.map(unit => [unit.name, unit]));
@@ -52,7 +50,6 @@ How to read the input:
 - Players use slang and shorthand: "cam" = Camera Man, "tv" = TV Man, "speaker" = Speaker Man, "dj" = DJ Speaker Man, "ptv" or "party titan tv" = Party Titan TV Man, "engi" = Engineer, "tsm" = Titan Speaker Man, "tcm" = Titan Camera Man, "utc"/"uptc" = Upgraded Titan Camera Man. Map each mention to the closest unit on the list and record the guess in assumptions when it is not obvious.
 - Counts like "2", "x2", "two" set the quantity. Missing counts mean 1.
 - In "A for B" or "A → B", the user gives A and gets B. "My offer"/"I give" is what the user gives; "their offer"/"for their"/"I get" is what the user gets. If the direction is ambiguous, assume the user gives the side mentioned first and say so in assumptions.
-- In a screenshot of the in-game trade window, the user's side is the one labelled as theirs (often "You" or on the left); read every unit icon and count.
 - Tickets are a currency; put ticket amounts in the tickets fields, not as units.
 - Anything that matches no unit on the list goes in unrecognized, never forced onto a wrong unit.
 - If the input is not a trade at all, set is_trade to false and leave both sides empty.`;
@@ -78,29 +75,13 @@ function verdictFor(gives, gets) {
   return diff > 0 ? 'W' : 'L';
 }
 
-function parseImage(dataUrl) {
-  const match = /^data:([^;]+);base64,(.+)$/.exec(dataUrl);
-  if (!match || !IMAGE_TYPES.includes(match[1])) throw new Error('Image must be a PNG, JPEG, WebP or GIF.');
-  if (match[2].length * 0.75 > MAX_IMAGE_BYTES) throw new Error('Image is too large.');
-  return { type: 'image_url', image_url: { url: dataUrl } };
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Use POST.' });
   }
   const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt.trim().slice(0, MAX_PROMPT_LENGTH) : '';
-  const image = typeof req.body?.image === 'string' ? req.body.image : '';
-  if (!prompt && !image) return res.status(400).json({ error: 'Describe the trade or add a screenshot.' });
-
-  const content = [];
-  try {
-    if (image) content.push(parseImage(image));
-  } catch (error) {
-    return res.status(400).json({ error: error.message });
-  }
-  content.push({ type: 'text', text: prompt || 'Read the trade in this screenshot.' });
+  if (!prompt) return res.status(400).json({ error: 'Describe the trade first.' });
 
   let response;
   try {
@@ -108,11 +89,11 @@ export default async function handler(req, res) {
       model: MODEL,
       temperature: 0,
       response_format: { type: 'json_schema', json_schema: { name: 'trade', schema: tradeSchema, strict: true } },
-      messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content }],
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, { role: 'user', content: prompt }],
     });
   } catch (error) {
     if (error instanceof Groq.RateLimitError) return res.status(429).json({ error: 'Too many checks right now. Try again in a minute.' });
-    if (error instanceof Groq.BadRequestError) return res.status(400).json({ error: 'That input could not be read. Try a different screenshot or wording.' });
+    if (error instanceof Groq.BadRequestError) return res.status(400).json({ error: 'That input could not be read. Try different wording.' });
     console.error('Trade check failed', error);
     return res.status(502).json({ error: 'The AI check is unavailable. Try again shortly.' });
   }

@@ -251,46 +251,9 @@ ticketDisplayToggle.addEventListener('click', () => {
 initCalculator();
 init();
 
-const MAX_IMAGE_SIDE = 1568;
 const aiForm = document.querySelector('#ai-form');
 const aiStatus = document.querySelector('#ai-status');
 const aiResult = document.querySelector('#ai-result');
-const aiPreview = document.querySelector('#ai-preview');
-let aiImage = '';
-function shrinkImage(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const image = new Image();
-    image.onload = () => {
-      const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(image.width, image.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(image.width * scale);
-      canvas.height = Math.round(image.height * scale);
-      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/jpeg', 0.85));
-    };
-    image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('That file is not an image we can read.')); };
-    image.src = url;
-  });
-}
-async function setAiImage(file) {
-  if (!file || !file.type.startsWith('image/')) return;
-  try {
-    aiImage = await shrinkImage(file);
-    aiPreview.querySelector('img').src = aiImage;
-    aiPreview.hidden = false;
-    aiStatus.textContent = '';
-  } catch (error) {
-    aiStatus.textContent = error.message;
-  }
-}
-function clearAiImage() {
-  aiImage = '';
-  aiPreview.hidden = true;
-  aiPreview.querySelector('img').removeAttribute('src');
-  document.querySelector('#ai-image').value = '';
-}
 function tradeSide(title, side) {
   const panel = element('div', 'ai-side');
   panel.append(element('h3', '', title));
@@ -338,22 +301,15 @@ function renderAiResult(result) {
   aiResult.append(element('small', '', 'Verdict uses listed values. Demand and player preferences can affect trades.'));
 }
 function initAiCheck() {
-  document.querySelector('#ai-image').addEventListener('change', event => setAiImage(event.target.files[0]));
-  document.querySelector('#ai-remove-image').addEventListener('click', clearAiImage);
-  document.addEventListener('paste', event => {
-    if (document.querySelector('#ai-section').hidden) return;
-    const file = [...event.clipboardData.files].find(item => item.type.startsWith('image/'));
-    if (file) { event.preventDefault(); setAiImage(file); }
-  });
   aiForm.addEventListener('submit', async event => {
     event.preventDefault();
     const prompt = document.querySelector('#ai-prompt').value.trim();
-    if (!prompt && !aiImage) { aiStatus.textContent = 'Describe the trade or add a screenshot.'; return; }
+    if (!prompt) { aiStatus.textContent = 'Describe the trade first.'; return; }
     const submit = document.querySelector('#ai-submit');
     submit.disabled = true;
     aiStatus.textContent = 'Reading the trade…';
     try {
-      const response = await fetch('/api/trade-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt, image: aiImage }) });
+      const response = await fetch('/api/trade-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'The AI check is unavailable. Try again shortly.');
       aiStatus.textContent = '';

@@ -52,13 +52,8 @@
     <section id="ai-section" class="ai-section" aria-label="AI trade check" hidden>
       <form id="ai-form" class="ai-panel">
         <h2>Is it a W, L or F?</h2>
-        <p class="ai-hint">Type the trade the way you'd say it, or add a screenshot of the trade window.</p>
+        <p class="ai-hint">Type the trade the way you'd say it.</p>
         <textarea id="ai-prompt" rows="3" maxlength="1000" placeholder="e.g. 2 party titan tv man, a builder cam, a dj for engineer" aria-label="Describe the trade"></textarea>
-        <div class="ai-image-row">
-          <label class="ai-upload">📷 Add screenshot<input id="ai-image" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
-          <span class="ai-paste-hint">or paste an image</span>
-          <div id="ai-preview" class="ai-preview" hidden><img alt="Screenshot to check"><button type="button" id="ai-remove-image" aria-label="Remove screenshot">×</button></div>
-        </div>
         <button id="ai-submit" type="submit" class="add-unit">Check trade</button>
         <p id="ai-status" class="ai-status" role="status"></p>
       </form>
