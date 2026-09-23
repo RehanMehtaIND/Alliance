@@ -1,4 +1,4 @@
-import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SLANG_RULE, TICKET_VALUE, aiHandler, readWithModel, scoreSide, sideSchema, unitByName, unitListText, unitNameSchema, unitValue, units, verdictFor } from '../lib/trade.js';
+import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SIGN_RULE, SLANG_RULE, TICKET_VALUE, aiHandler, readWithModel, scoreSide, sideSchema, unitByName, unitListText, unitNameSchema, unitValue, units, verdictFor } from '../lib/trade.js';
 
 // The model only reads which units the question is about. Fair packages are built
 // here from values.json so suggestions always match the published value list.
@@ -37,6 +37,7 @@ ${unitListText}
 
 How to read the input:
 ${SLANG_RULE}
+${SIGN_RULE}
 - units is the unit or units the question is about, e.g. "what should I ask for my 2 tcm" means 2 Titan Camera Man. Counts like "2", "x2", "two" set the quantity. Missing counts mean 1.
 - direction is "selling" when the user owns those units and asks what to get for them ("what should I ask for my…", "what can I get for…"), "buying" when the user wants those units and asks what to offer ("what should I trade for…", "how do I get…"), otherwise "unclear".
 - goal is "profit" when the user wants to come out ahead ("most profit", "a W", "overpay me", "win"), "overpay" when they accept coming out behind ("I'll take an L", "I can overpay", "quick sell", "less is fine"), otherwise "fair".

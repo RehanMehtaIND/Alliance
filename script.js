@@ -14,7 +14,7 @@ themeToggle.addEventListener('click', () => {
   try { localStorage.setItem('atd.theme', theme); } catch { /* Theme still works without storage. */ }
 });
 
-const state = { allItems: [], currentPage: 1, itemsPerPage: 8, selectedRarity: '', searchTerm: '', sortMode: 'default', showTickets: false };
+const state = { allItems: [], signs: [], currentPage: 1, itemsPerPage: 8, selectedRarity: '', searchTerm: '', sortMode: 'default', showTickets: false };
 const grid = document.querySelector('#items-grid');
 const message = document.querySelector('#message');
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -122,11 +122,15 @@ async function init() {
     filters.append(button);
   });
   try {
+    // Signs are optional: without them the calculator still works, just unsigned.
+    const signsRequest = fetch('./signs.json').then(res => res.ok ? res.json() : []).catch(() => []);
     const response = await fetch('./values.json');
     if (!response.ok) throw new Error(`values.json: HTTP ${response.status}`);
     const items = await response.json();
     if (!Array.isArray(items) || items.some(item => !item || typeof item !== 'object' || Array.isArray(item))) throw new Error('Expected an array of tower objects.');
     state.allItems = items;
+    const signs = await signsRequest;
+    state.signs = Array.isArray(signs) ? signs.filter(sign => sign && typeof sign.name === 'string' && Number.isFinite(sign.boost)) : [];
     document.querySelector('#calculator-loading').hidden = true;
     document.querySelectorAll('.add-unit').forEach(button => { button.disabled = false; });
     render();
@@ -145,7 +149,18 @@ async function init() {
 
 const TICKET_VALUE = 55;
 const MAX_AMOUNT = 1000000;
+// Units are keyed by unit and sign, so the same unit with different signs stays separate.
 const offers = { your: { units: new Map(), tickets: 0 }, their: { units: new Map(), tickets: 0 } };
+const offerKey = (index, sign) => `${index}|${sign}`;
+const signByName = name => state.signs.find(sign => sign.name === name);
+// A sign adds its boost percent to the unit's value.
+const signedValue = (value, sign) => Math.round(value * (1 + (sign?.boost || 0) / 100) * 100) / 100;
+const boostText = boost => `+${numberFormat.format(boost)}%`;
+function addToOffer(side, index, sign, quantity) {
+  const key = offerKey(index, sign), entry = offers[side].units.get(key);
+  if (entry) entry.quantity = Math.min(MAX_AMOUNT, entry.quantity + quantity);
+  else offers[side].units.set(key, { index, sign, quantity });
+}
 let pickerSide = 'your';
 function wholeAmount(value, minimum = 0) {
   const number = Number(value);
@@ -153,7 +168,7 @@ function wholeAmount(value, minimum = 0) {
 }
 function offerTotal(offer) {
   let total = offer.tickets * TICKET_VALUE;
-  for (const [index, quantity] of offer.units) total += numericValue(state.allItems[index]) * quantity;
+  for (const { index, sign, quantity } of offer.units.values()) total += signedValue(numericValue(state.allItems[index]), signByName(sign)) * quantity;
   return total;
 }
 function updateBalance() {
@@ -176,21 +191,32 @@ function updateBalance() {
 function renderOffer(side) {
   const container = document.querySelector(`#${side}-units`);
   container.replaceChildren();
-  for (const [index, quantity] of offers[side].units) {
-    const item = state.allItems[index];
+  for (const [key, entry] of offers[side].units) {
+    const item = state.allItems[entry.index], sign = signByName(entry.sign);
     const card = element('article', 'offer-item');
     if (item.image) {
       const image = element('img'); image.src = item.image; image.alt = ''; image.addEventListener('error', () => image.remove()); card.append(image);
     }
     card.append(element('h3', '', item.name), element('small', '', `${item.rarity} · Demand: ${item.demand || '—'}`));
+    if (sign) card.append(element('small', 'sign-boost', `${boostText(sign.boost)} sign · ${displayAmount(signedValue(numericValue(item), sign))} each`));
+    if (state.signs.length) {
+      const signLabel = element('label', 'sign-select');
+      const select = element('select');
+      select.setAttribute('aria-label', `Sign on ${item.name} in ${side} offer`);
+      select.append(new Option('No sign', ''));
+      [...state.signs].sort((a, b) => b.boost - a.boost || a.name.localeCompare(b.name)).forEach(option => select.append(new Option(`${option.name} ${boostText(option.boost)}`, option.name)));
+      select.value = entry.sign;
+      select.addEventListener('change', () => { offers[side].units.delete(key); addToOffer(side, entry.index, select.value, entry.quantity); renderOffer(side); });
+      signLabel.append(select); card.append(signLabel);
+    }
     const label = element('label', 'quantity', 'Qty ');
-    const input = element('input'); input.type = 'number'; input.min = '1'; input.max = String(MAX_AMOUNT); input.step = '1'; input.value = quantity;
+    const input = element('input'); input.type = 'number'; input.min = '1'; input.max = String(MAX_AMOUNT); input.step = '1'; input.value = entry.quantity;
     input.setAttribute('aria-label', `${item.name} quantity in ${side} offer`);
-    input.addEventListener('input', () => { offers[side].units.set(index, wholeAmount(input.value, 1)); updateBalance(); });
-    input.addEventListener('change', () => { input.value = offers[side].units.get(index); });
+    input.addEventListener('input', () => { entry.quantity = wholeAmount(input.value, 1); updateBalance(); });
+    input.addEventListener('change', () => { input.value = entry.quantity; });
     label.append(input); card.append(label);
     const remove = element('button', 'remove-unit', '×'); remove.type = 'button'; remove.setAttribute('aria-label', `Remove ${item.name} from ${side} offer`);
-    remove.addEventListener('click', () => { offers[side].units.delete(index); renderOffer(side); });
+    remove.addEventListener('click', () => { offers[side].units.delete(key); renderOffer(side); });
     card.append(remove); container.append(card);
   }
   if (!offers[side].units.size) container.append(element('p', 'offer-empty', 'Add units or crates to this offer.'));
@@ -207,7 +233,7 @@ function renderPicker() {
     if (item.image) { const image = element('img'); image.src = item.image; image.alt = ''; image.loading = 'lazy'; image.addEventListener('error', () => image.remove()); button.append(image); }
     const details = element('span'); details.append(element('strong', '', item.name), element('small', '', `${item.rarity} · ${button.disabled ? 'Value unavailable' : `${displayAmount(value)} ${displayUnit()}`}`)); button.append(details, element('span', '', '+'));
     button.addEventListener('click', () => {
-      offers[pickerSide].units.set(index, Math.min(MAX_AMOUNT, (offers[pickerSide].units.get(index) || 0) + 1));
+      addToOffer(pickerSide, index, '', 1);
       renderOffer(pickerSide); document.querySelector('#unit-picker').close();
     });
     results.append(button);
@@ -269,7 +295,7 @@ function tradeSide(title, side) {
     const row = element('li');
     if (line.image) { const image = element('img'); image.src = line.image; image.alt = ''; image.addEventListener('error', () => image.remove()); row.append(image); }
     const details = element('span');
-    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}`), element('small', '', `${displayAmount(line.value)} each · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
+    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}${line.sign ? ` · ${line.sign.name} sign` : ''}`), element('small', '', `${displayAmount(line.value)} each${line.sign ? ` (${boostText(line.sign.boost)})` : ''} · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
     row.append(details, element('b', '', displayAmount(line.total)));
     list.append(row);
   }
@@ -303,7 +329,7 @@ function renderAiResult(result) {
   }
   const notes = aiNotes(result);
   if (notes) aiResult.append(notes);
-  aiResult.append(element('small', '', 'Verdict uses listed values. Demand and player preferences can affect trades.'));
+  aiResult.append(element('small', '', 'Verdict uses listed values and sign boosts. Demand and player preferences can affect trades.'));
 }
 function aiNotes(result) {
   const notes = [...(result.assumptions || []), ...(result.unrecognized || []).map(name => `Not on the value list, so not counted: ${name}`)];

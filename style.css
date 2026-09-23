@@ -552,3 +552,6 @@ body { isolation: isolate; }
 [data-theme=dark] .sun-icon { display: block; }
 @media (max-width: 900px) { .nav-button { gap: 8px; } .nav-icon { width: 21px; height: 21px; } .theme-icon { width: 25px; height: 25px; } }
 @media (max-width: 650px) { .nav-button { gap: 5px; } .nav-icon { width: 16px; height: 16px; } }
+.offer-item .sign-boost { margin-top: 4px; color: var(--calc-text); font-weight: 700; }
+.sign-select { display: block; margin-top: 9px; }
+.sign-select select { width: 100%; max-width: 140px; padding: 4px; border: 1px solid var(--calc-border); border-radius: 7px; background: var(--calc-panel); color: inherit; font-size: 10px; }

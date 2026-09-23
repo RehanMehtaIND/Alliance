@@ -292,3 +292,5 @@ body:has(#unit-picker[open]) { overflow: hidden; }
   .ai-sides { grid-template-columns: 1fr; }
   #ai-prompt, #advice-prompt { font-size: 16px; }
 }
+.offer-item .sign-boost { color: var(--accent); font-weight: 600; }
+.sign-select select { border-color: var(--line); border-radius: 9px; background: var(--surface); color: var(--ink); font-size: 11px; }

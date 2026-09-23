@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/trade-check.js": { "includeFiles": "values.json", "maxDuration": 60 },
-    "api/trade-advice.js": { "includeFiles": "values.json", "maxDuration": 60 }
+    "api/trade-check.js": { "includeFiles": "{values.json,signs.json}", "maxDuration": 60 },
+    "api/trade-advice.js": { "includeFiles": "{values.json,signs.json}", "maxDuration": 60 }
   }
 }

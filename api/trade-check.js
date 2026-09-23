@@ -1,4 +1,4 @@
-import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText, verdictFor } from '../lib/trade.js';
+import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SIGN_RULE, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText, verdictFor } from '../lib/trade.js';
 
 // The model only reads the trade (which units are on which side). Scoring is done
 // here from values.json so verdicts always match the published value list.
@@ -24,6 +24,7 @@ ${unitListText}
 
 How to read the input:
 ${SLANG_RULE}
+${SIGN_RULE}
 - Counts like "2", "x2", "two" set the quantity. Missing counts mean 1.
 - In "A for B" or "A → B", the user gives A and gets B. "My offer"/"I give" is what the user gives; "their offer"/"for their"/"I get" is what the user gets. If the direction is ambiguous, assume the user gives the side mentioned first and say so in assumptions.
 - Tickets are a currency; put ticket amounts in the tickets fields, not as units.
