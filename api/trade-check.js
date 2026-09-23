@@ -7,6 +7,8 @@ import { join } from 'node:path';
 const TICKET_VALUE = 40;
 const FAIR_MARGIN = 0.1; // Within 10% of the bigger side counts as fair.
 const MAX_PROMPT_LENGTH = 1000;
+// Units whose value depends on serial number, so a listed value can't judge the trade.
+const SERIAL_VALUED_UNITS = new Set(['10M Speaker Man']);
 // Supports strict JSON-schema output on Groq.
 const MODEL = 'qwen/qwen3.8-27b';
 
@@ -114,14 +116,16 @@ export default async function handler(req, res) {
   if (!gives.lines.length && !gives.tickets || !gets.lines.length && !gets.tickets) {
     return res.status(200).json({ isTrade: false, unrecognized: trade.unrecognized, assumptions: [...trade.assumptions, 'Both sides of the trade are needed to judge it.'] });
   }
+  const serialUnits = [...gives.lines, ...gets.lines].filter(line => SERIAL_VALUED_UNITS.has(line.name)).map(line => line.name);
+  const serialNotes = [...new Set(serialUnits)].map(name => `${name}'s value changes with its serial number, so this trade isn't rated W, L or F.`);
   return res.status(200).json({
     isTrade: true,
-    verdict: verdictFor(gives, gets),
+    verdict: serialUnits.length ? null : verdictFor(gives, gets),
     gives,
     gets,
     difference: gets.total - gives.total,
     fairMargin: FAIR_MARGIN,
     unrecognized: trade.unrecognized,
-    assumptions: trade.assumptions,
+    assumptions: [...serialNotes, ...trade.assumptions],
   });
 }

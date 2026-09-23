@@ -281,13 +281,14 @@ function renderAiResult(result) {
     aiResult.append(element('p', 'ai-note', 'Couldn’t find a full trade in that. Name what each side gives, like “2 party titan tv for engineer”.'));
   } else {
     const labels = { W: ['W', 'Win for you'], L: ['L', 'Loss for you'], F: ['F', 'Fair trade'] };
-    const [letter, label] = labels[result.verdict];
+    const [letter, label] = labels[result.verdict] || ['?', 'No verdict'];
     const header = element('div', 'ai-verdict');
-    header.dataset.result = result.verdict;
+    header.dataset.result = result.verdict || 'none';
     const diff = Math.abs(result.difference);
     const percent = Math.round(diff / Math.max(result.gives.total, result.gets.total) * 1000) / 10;
+    const summary = !result.verdict ? 'This trade has a unit whose value depends on its serial number. See the note below.' : result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${numberFormat.format(diff)} more value (${percent}%). Fair means within ${result.fairMargin * 100}%.`;
     header.append(element('span', 'ai-letter', letter), element('div', '', ''));
-    header.lastChild.append(element('strong', '', label), element('p', '', result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${numberFormat.format(diff)} more value (${percent}%). Fair means within ${result.fairMargin * 100}%.`));
+    header.lastChild.append(element('strong', '', label), element('p', '', summary));
     const sides = element('div', 'ai-sides');
     sides.append(tradeSide('You give', result.gives), tradeSide('You get', result.gets));
     aiResult.append(header, sides);
