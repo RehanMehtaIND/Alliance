@@ -33,7 +33,6 @@ function element(tag, className, text) {
 }
 function filteredItems() {
   const items = state.allItems.filter(item => String(item.name || '').toLowerCase().includes(state.searchTerm) && (!state.selectedRarity || rarityKey(item) === state.selectedRarity));
-  if (state.sortMode === 'default') items.sort((a, b) => Number(rarityKey(b) === 'event') - Number(rarityKey(a) === 'event'));
   if (state.sortMode.startsWith('name-')) items.sort((a, b) => String(a.name).localeCompare(String(b.name)) * (state.sortMode === 'name-asc' ? 1 : -1));
   if (state.sortMode.startsWith('value-')) items.sort((a, b) => {
     const av = numericValue(a), bv = numericValue(b);
