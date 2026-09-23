@@ -10,14 +10,14 @@
   --text-secondary: #778398;
 }
 :root[data-theme=dark] {
-  --ink: #e4eaf5;
-  --muted: #94a0b5;
-  --surface: #19212f;
-  --canvas: #101722;
-  --subtle: #222d3e;
-  --line: #2c384b;
-  --accent: #8aaaff;
-  --text-secondary: #94a0b5;
+  --ink: #f4f4f5;
+  --muted: #a1a1aa;
+  --surface: #0a0a0b;
+  --canvas: #000000;
+  --subtle: #141416;
+  --line: #1f1f23;
+  --accent: #fafafa;
+  --text-secondary: #a1a1aa;
 }
 :root { font-family: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--ink); background: var(--canvas); }
 body { background: var(--canvas); -webkit-font-smoothing: antialiased; }
@@ -36,6 +36,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 #calculator-tab, #ai-tab { width: 175px; }
 .nav-button.updates { width: 185px; color: var(--muted); }
 .nav-button.active, [data-theme=dark] .nav-button.active { color: var(--accent); background: var(--subtle); }
+:root[data-theme=dark] .nav-button.active { background: var(--canvas); box-shadow: inset 0 0 0 1px #d4d4d8; }
 .nav-icon { width: 20px; height: 20px; }
 .nav-button.active .nav-icon { filter: none; }
 .soon, [data-theme=dark] .soon { top: -12px; right: 9px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); font-size: 8px; font-weight: 650; letter-spacing: .7px; box-shadow: none; text-shadow: none; transform: none; }
