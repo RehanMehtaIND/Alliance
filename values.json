@@ -166,7 +166,7 @@
     "name": "Engineer",
     "rarity": "Exclusive",
     "price": null,
-    "value": 38000,
+    "value": 40000,
     "demand": "10/10",
     "status": "stable"
   },
@@ -265,7 +265,7 @@
     "name": "Builder Camera Man",
     "rarity": "Event",
     "price": 250,
-    "value": 3700,
+    "value": 3500,
     "demand": "2/10",
     "status": "dropping"
   },
