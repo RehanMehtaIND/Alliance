@@ -157,7 +157,7 @@
     "name": "10M Titan Speaker Man",
     "rarity": "Mythic",
     "price": null,
-    "value": 30000,
+    "value": 29000,
     "demand": "6/10",
     "status": "dropping"
   },
@@ -302,7 +302,7 @@
     "rarity": "Event",
     "price": null,
     "value": "n/a",
-    "demand": "3/10",
+    "demand": "?/10",
     "status": "stable"
   },
   {
@@ -311,7 +311,7 @@
     "rarity": "Event",
     "price": null,
     "value": "n/a",
-    "demand": "3/10",
+    "demand": "?/10",
     "status": "stable"
   },
   {
@@ -319,8 +319,8 @@
     "name": "Lucky Block Red",
     "rarity": "Event",
     "price": null,
-    "value": 2000,
-    "demand": "3/10",
+    "value": 2500,
+    "demand": "9/10",
     "status": "stable"
   }
 ]
