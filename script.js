@@ -23,6 +23,11 @@ const ticketText = points => { const tickets = points / TICKET_VALUE; return tic
 const rarityNames = ['Basic', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Exclusive', 'Event'];
 const numericValue = item => item.value == null || String(item.value).trim() === '' ? null : Number(String(item.value).replaceAll(',', ''));
 const rarityKey = item => String(item.rarity || 'Unknown').toLowerCase();
+// Units with a serials table are valued by serial range; a null range value means not in circulation.
+const serialRanges = item => Array.isArray(item.serials) ? item.serials : null;
+const serialLabel = range => range.to == null ? `#${range.from}+` : range.from === range.to ? `#${range.from}` : `#${range.from}–${range.to}`;
+const pricedRange = range => { const value = numericValue(range); return value !== null && Number.isFinite(value) && value >= 0; };
+const pricedValues = item => serialRanges(item).filter(pricedRange).map(numericValue);
 // Formats a value in points, or in tickets when the ticket toggle is on.
 const displayAmount = points => state.showTickets ? `🎟 ${ticketText(points)}` : numberFormat.format(points);
 const displayUnit = () => state.showTickets ? 'tickets' : 'points';
@@ -65,19 +70,44 @@ function createCard(item) {
   area.append(name, element('span', 'rarity-badge', item.rarity || 'Unknown'));
   const bottom = element('div', 'card-bottom');
   const value = numericValue(item);
+  const ranges = serialRanges(item), priced = ranges && pricedValues(item);
+  const amountText = points => state.showTickets ? ticketText(points) : numberFormat.format(points);
+  const valueText = priced?.length ? `${amountText(Math.min(...priced))} – ${amountText(Math.max(...priced))}` : value !== null && Number.isFinite(value) ? amountText(value) : '—';
   const valueLabel = element('span', 'value');
   const coin = element('span', state.showTickets ? 'ticket-icon' : 'coin', state.showTickets ? '🎟' : '$');
   coin.setAttribute('aria-hidden', 'true');
-  valueLabel.append(coin, document.createTextNode(state.showTickets ? 'Tickets: ' : 'Value: '), element('strong', '', value !== null && Number.isFinite(value) ? (state.showTickets ? ticketText(value) : numberFormat.format(value)) : '—'));
+  valueLabel.append(coin, document.createTextNode(state.showTickets ? 'Tickets: ' : 'Value: '), element('strong', '', valueText));
   const status = String(item.status || item.trend || '').toLowerCase();
   const trends = { stable: ['stable', '↔ Stable'], flat: ['stable', '↔ Stable'], rising: ['rising', '↗ Rising'], up: ['rising', '↗ Rising'], dropping: ['dropping', '↓ Dropping'], down: ['dropping', '↓ Dropping'] };
   const trend = trends[status] || ['', '—'];
   const badge = element('span', `trend ${trend[0]}`, trend[1]);
   badge.title = item.demand ? `Demand: ${item.demand}` : 'Demand unavailable';
   bottom.append(valueLabel, badge);
+  if (ranges) {
+    const button = element('button', 'serial-button', 'Serial values');
+    button.type = 'button';
+    button.setAttribute('aria-label', `Serial values for ${item.name}`);
+    button.addEventListener('click', () => showSerials(item));
+    bottom.append(button);
+  }
   card.append(area, bottom);
   return card;
 }
+const serialDialog = document.querySelector('#serial-values');
+function showSerials(item) {
+  serialDialog.item = item;
+  document.querySelector('#serial-title').textContent = `${item.name} serial values`;
+  document.querySelector('#serial-rows').replaceChildren(...serialRanges(item).map(range => {
+    const row = element('tr');
+    if (!pricedRange(range)) row.className = 'unpriced';
+    row.append(element('th', '', serialLabel(range)), element('td', '', pricedRange(range) ? `${displayAmount(numericValue(range))}` : '—'), element('td', '', range.note || ''));
+    row.firstChild.scope = 'row';
+    return row;
+  }));
+  document.querySelector('#serial-values th:nth-child(2)').textContent = state.showTickets ? 'Tickets' : 'Value';
+  if (!serialDialog.open) serialDialog.showModal();
+}
+document.querySelector('#close-serials').addEventListener('click', () => serialDialog.close());
 function pageButton(label, page, options = {}) {
   const button = element('button', options.arrow ? 'arrow' : '', label);
   button.type = 'button';
@@ -153,10 +183,6 @@ const MAX_AMOUNT = 1000000;
 // Units are keyed by unit, sign and serial range, so differently signed or serialed copies stay separate.
 const offers = { your: { units: new Map(), tickets: 0 }, their: { units: new Map(), tickets: 0 } };
 const offerKey = (index, sign, serial) => `${index}|${sign}|${serial ?? ''}`;
-// Units with a serials table are valued by the picked serial range; a null range value means not in circulation.
-const serialRanges = item => Array.isArray(item.serials) ? item.serials : null;
-const serialLabel = range => range.to == null ? `#${range.from}+` : range.from === range.to ? `#${range.from}` : `#${range.from}–${range.to}`;
-const pricedRange = range => { const value = numericValue(range); return value !== null && Number.isFinite(value) && value >= 0; };
 // New copies start on the last priced range, the most common serials.
 const defaultSerial = item => { const ranges = serialRanges(item); return ranges ? ranges.findLastIndex(pricedRange) : null; };
 const baseValue = (item, serial) => numericValue(serialRanges(item)?.[serial] ?? item);
@@ -249,7 +275,7 @@ function renderPicker() {
   const results = document.querySelector('#picker-results'); results.replaceChildren();
   state.allItems.forEach((item, index) => {
     if (!`${item.name} ${item.rarity}`.toLowerCase().includes(query)) return;
-    const ranges = serialRanges(item), priced = ranges?.filter(pricedRange).map(numericValue);
+    const ranges = serialRanges(item), priced = ranges && pricedValues(item);
     const value = numericValue(item);
     const button = element('button', 'picker-item'); button.type = 'button';
     button.disabled = ranges ? !priced.length : value === null || !Number.isFinite(value) || value < 0;
@@ -302,6 +328,7 @@ ticketDisplayToggles.forEach(toggle => {
     if (state.allItems.length) render();
     for (const side of ['your', 'their']) renderOffer(side);
     if (document.querySelector('#unit-picker').open) renderPicker();
+    if (serialDialog.open) showSerials(serialDialog.item);
     if (aiResult.result) renderAiResult(aiResult.result);
     if (adviceResult.result) renderAdviceResult(adviceResult.result);
   });

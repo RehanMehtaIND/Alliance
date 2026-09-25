@@ -73,6 +73,11 @@
       <input type="search" id="picker-search" placeholder="Search units or crates…" aria-label="Search units or crates">
       <div id="picker-results" class="picker-results"></div>
     </dialog>
+    <dialog id="serial-values" aria-labelledby="serial-title">
+      <div class="picker-heading"><h2 id="serial-title">Serial values</h2><button type="button" id="close-serials" aria-label="Close serial values">×</button></div>
+      <p class="serial-hint">This unit's value depends on its serial number.</p>
+      <table class="serial-table"><thead><tr><th scope="col">Serial</th><th scope="col">Value</th><th scope="col">Worth</th></tr></thead><tbody id="serial-rows"></tbody></table>
+    </dialog>
   </main>
 </body>
 </html>
