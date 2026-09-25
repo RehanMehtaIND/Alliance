@@ -1,4 +1,4 @@
-import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SIGN_RULE, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText, verdictFor } from '../lib/trade.js';
+import { FAIR_MARGIN, SERIAL_RULE, SIGN_RULE, SLANG_RULE, aiHandler, readWithModel, scoreSide, sideSchema, unitListText, unpricedNotes, verdictFor } from '../lib/trade.js';
 
 // The model only reads the trade (which units are on which side). Scoring is done
 // here from values.json so verdicts always match the published value list.
@@ -25,6 +25,7 @@ ${unitListText}
 How to read the input:
 ${SLANG_RULE}
 ${SIGN_RULE}
+${SERIAL_RULE}
 - Counts like "2", "x2", "two" set the quantity. Missing counts mean 1.
 - In "A for B" or "A → B", the user gives A and gets B. "My offer"/"I give" is what the user gives; "their offer"/"for their"/"I get" is what the user gets. If the direction is ambiguous, assume the user gives the side mentioned first and say so in assumptions.
 - Tickets are a currency; put ticket amounts in the tickets fields, not as units.
@@ -39,16 +40,15 @@ export default aiHandler(async prompt => {
   if (!gives.lines.length && !gives.tickets || !gets.lines.length && !gets.tickets) {
     return { isTrade: false, unrecognized: trade.unrecognized, assumptions: [...trade.assumptions, 'Both sides of the trade are needed to judge it.'] };
   }
-  const serialUnits = [...gives.lines, ...gets.lines].filter(line => SERIAL_VALUED_UNITS.has(line.name)).map(line => line.name);
-  const serialNotes = [...new Set(serialUnits)].map(name => `${name}'s value changes with its serial number, so this trade isn't rated W, L or F.`);
+  const unpriced = unpricedNotes(gives, gets);
   return {
     isTrade: true,
-    verdict: serialUnits.length ? null : verdictFor(gives, gets),
+    verdict: unpriced.length ? null : verdictFor(gives, gets),
     gives,
     gets,
     difference: gets.total - gives.total,
     fairMargin: FAIR_MARGIN,
     unrecognized: trade.unrecognized,
-    assumptions: [...serialNotes, ...trade.assumptions],
+    assumptions: [...unpriced, ...trade.assumptions],
   };
 });

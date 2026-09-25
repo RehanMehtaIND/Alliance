@@ -1,4 +1,4 @@
-import { FAIR_MARGIN, SERIAL_VALUED_UNITS, SIGN_RULE, SLANG_RULE, TICKET_VALUE, aiHandler, readWithModel, scoreSide, sideSchema, unitByName, unitListText, unitNameSchema, unitValue, units, verdictFor } from '../lib/trade.js';
+import { FAIR_MARGIN, SERIAL_RULE, SIGN_RULE, SLANG_RULE, TICKET_VALUE, aiHandler, readWithModel, scoreSide, sideSchema, unitByName, unitListText, unitNameSchema, unitValue, units, unpricedNotes, verdictFor } from '../lib/trade.js';
 
 // The model only reads which units the question is about. Fair packages are built
 // here from values.json so suggestions always match the published value list.
@@ -38,6 +38,7 @@ ${unitListText}
 How to read the input:
 ${SLANG_RULE}
 ${SIGN_RULE}
+${SERIAL_RULE}
 - units is the unit or units the question is about, e.g. "what should I ask for my 2 tcm" means 2 Titan Camera Man. Counts like "2", "x2", "two" set the quantity. Missing counts mean 1.
 - direction is "selling" when the user owns those units and asks what to get for them ("what should I ask for my…", "what can I get for…"), "buying" when the user wants those units and asks what to offer ("what should I trade for…", "how do I get…"), otherwise "unclear".
 - goal is "profit" when the user wants to come out ahead ("most profit", "a W", "overpay me", "win"), "overpay" when they accept coming out behind ("I'll take an L", "I can overpay", "quick sell", "less is fine"), otherwise "fair".
@@ -68,7 +69,7 @@ function suggest(target, aim, direction, prefer, avoid) {
   const exclude = new Set([...target.lines.map(line => line.name), ...avoid]);
   const candidates = units.filter(unit => {
     const value = unitValue(unit);
-    return value > 0 && value >= aim.total * MIN_SHARE && value <= aim.total * (1 + aim.tolerance) && !exclude.has(unit.name) && !SERIAL_VALUED_UNITS.has(unit.name);
+    return value > 0 && value >= aim.total * MIN_SHARE && value <= aim.total * (1 + aim.tolerance) && !exclude.has(unit.name) && !unit.serials;
   });
   const scored = [];
   for (const pieces of packages(candidates, aim.total)) {
@@ -133,10 +134,9 @@ export default aiHandler(async prompt => {
   const base = { direction: question.direction, unrecognized: question.unrecognized, assumptions: question.assumptions };
   if (!question.is_question || !target.lines.length && !target.tickets) return { ...base, isQuestion: false };
 
-  const notes = [];
-  const serial = target.lines.filter(line => SERIAL_VALUED_UNITS.has(line.name));
-  serial.forEach(line => notes.push(`${line.name}'s value changes with its serial number, so fair trades for it can't be worked out from the value list.`));
-  if (!serial.length && target.total === 0) notes.push('That has no listed trade value, so there is nothing to balance it against.');
+  const notes = unpricedNotes(target);
+  const unpriced = notes.length > 0;
+  if (!unpriced && target.total === 0) notes.push('That has no listed trade value, so there is nothing to balance it against.');
   const prefer = new Set(question.prefer_units.filter(name => unitByName.has(name)));
   const avoid = new Set(question.avoid_units.filter(name => unitByName.has(name)));
   const aim = aimFor(target, question.direction, question.goal, question.goal_percent, question.goal_amount);
@@ -154,7 +154,7 @@ export default aiHandler(async prompt => {
     goal: aim.goal,
     payment,
     goalGain: aim.gain,
-    ticketEquivalent: serial.length || target.total === 0 ? null : Math.round(target.total / TICKET_VALUE),
+    ticketEquivalent: unpriced || target.total === 0 ? null : Math.round(target.total / TICKET_VALUE),
     fairMargin: FAIR_MARGIN,
     assumptions: [...notes, ...question.assumptions],
   };

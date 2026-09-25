@@ -247,9 +247,23 @@
     "name": "10M Speaker Man",
     "rarity": "Event",
     "price": null,
-    "value": 60000,
+    "value": 54000,
     "demand": "10/10",
-    "status": "dropping"
+    "status": "dropping",
+    "serials": [
+      { "from": 1, "to": 2, "value": null, "note": "Not in circulation" },
+      { "from": 3, "to": 3, "value": 480000, "note": "12 Engineers" },
+      { "from": 4, "to": 5, "value": null, "note": "Not in circulation" },
+      { "from": 6, "to": 10, "value": 320000, "note": "8+ Engineers" },
+      { "from": 11, "to": 15, "value": 240000, "note": "6+ Engineers" },
+      { "from": 16, "to": 40, "value": 160000, "note": "3-5 Engineers" },
+      { "from": 41, "to": 50, "value": 160000, "note": "4+ Engineers" },
+      { "from": 51, "to": 100, "value": 120000, "note": "3+ Engineers" },
+      { "from": 101, "to": 150, "value": 100000, "note": "2 Engineers + adds" },
+      { "from": 151, "to": 250, "value": 90000, "note": "2 Engineers + small adds" },
+      { "from": 251, "to": 299, "value": 80000, "note": "2 Engineers or less" },
+      { "from": 300, "to": null, "value": 50000, "note": "1 Engineer + adds or less" }
+    ]
   },
   {
     "image": "./TowerImages/PartyTitanTVMan.png",

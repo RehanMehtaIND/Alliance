@@ -150,17 +150,24 @@ async function init() {
 
 const TICKET_VALUE = 55;
 const MAX_AMOUNT = 1000000;
-// Units are keyed by unit and sign, so the same unit with different signs stays separate.
+// Units are keyed by unit, sign and serial range, so differently signed or serialed copies stay separate.
 const offers = { your: { units: new Map(), tickets: 0 }, their: { units: new Map(), tickets: 0 } };
-const offerKey = (index, sign) => `${index}|${sign}`;
+const offerKey = (index, sign, serial) => `${index}|${sign}|${serial ?? ''}`;
+// Units with a serials table are valued by the picked serial range; a null range value means not in circulation.
+const serialRanges = item => Array.isArray(item.serials) ? item.serials : null;
+const serialLabel = range => range.to == null ? `#${range.from}+` : range.from === range.to ? `#${range.from}` : `#${range.from}–${range.to}`;
+const pricedRange = range => { const value = numericValue(range); return value !== null && Number.isFinite(value) && value >= 0; };
+// New copies start on the last priced range, the most common serials.
+const defaultSerial = item => { const ranges = serialRanges(item); return ranges ? ranges.findLastIndex(pricedRange) : null; };
+const baseValue = (item, serial) => numericValue(serialRanges(item)?.[serial] ?? item);
 const signByName = name => state.signs.find(sign => sign.name === name);
 // A sign adds its boost percent to the unit's value.
 const signedValue = (value, sign) => Math.round(value * (1 + (sign?.boost || 0) / 100) * 100) / 100;
 const boostText = boost => `+${numberFormat.format(boost)}%`;
-function addToOffer(side, index, sign, quantity) {
-  const key = offerKey(index, sign), entry = offers[side].units.get(key);
+function addToOffer(side, index, sign, serial, quantity) {
+  const key = offerKey(index, sign, serial), entry = offers[side].units.get(key);
   if (entry) entry.quantity = Math.min(MAX_AMOUNT, entry.quantity + quantity);
-  else offers[side].units.set(key, { index, sign, quantity });
+  else offers[side].units.set(key, { index, sign, serial, quantity });
 }
 let pickerSide = 'your';
 function wholeAmount(value, minimum = 0) {
@@ -169,7 +176,7 @@ function wholeAmount(value, minimum = 0) {
 }
 function offerTotal(offer) {
   let total = offer.tickets * TICKET_VALUE;
-  for (const { index, sign, quantity } of offer.units.values()) total += signedValue(numericValue(state.allItems[index]), signByName(sign)) * quantity;
+  for (const { index, sign, serial, quantity } of offer.units.values()) total += signedValue(baseValue(state.allItems[index], serial), signByName(sign)) * quantity;
   return total;
 }
 function updateBalance() {
@@ -193,13 +200,27 @@ function renderOffer(side) {
   const container = document.querySelector(`#${side}-units`);
   container.replaceChildren();
   for (const [key, entry] of offers[side].units) {
-    const item = state.allItems[entry.index], sign = signByName(entry.sign);
+    const item = state.allItems[entry.index], sign = signByName(entry.sign), ranges = serialRanges(item);
     const card = element('article', 'offer-item');
     if (item.image) {
       const image = element('img'); image.src = item.image; image.alt = ''; image.addEventListener('error', () => image.remove()); card.append(image);
     }
     card.append(element('h3', '', item.name), element('small', '', `${item.rarity} · Demand: ${item.demand || '—'}`));
-    if (sign) card.append(element('small', 'sign-boost', `${boostText(sign.boost)} sign · ${displayAmount(signedValue(numericValue(item), sign))} each`));
+    if (ranges) card.append(element('small', 'serial-note', `Serial ${serialLabel(ranges[entry.serial])} · ${ranges[entry.serial].note || ''}`));
+    if (sign) card.append(element('small', 'sign-boost', `${boostText(sign.boost)} sign · ${displayAmount(signedValue(baseValue(item, entry.serial), sign))} each`));
+    if (ranges) {
+      const serialSelect = element('label', 'sign-select');
+      const select = element('select');
+      select.setAttribute('aria-label', `Serial of ${item.name} in ${side} offer`);
+      ranges.forEach((range, index) => {
+        const option = new Option(`${serialLabel(range)} · ${pricedRange(range) ? displayAmount(numericValue(range)) : 'Not in circulation'}`, String(index));
+        option.disabled = !pricedRange(range);
+        select.append(option);
+      });
+      select.value = String(entry.serial);
+      select.addEventListener('change', () => { offers[side].units.delete(key); addToOffer(side, entry.index, entry.sign, Number(select.value), entry.quantity); renderOffer(side); });
+      serialSelect.append(select); card.append(serialSelect);
+    }
     if (state.signs.length) {
       const signLabel = element('label', 'sign-select');
       const select = element('select');
@@ -207,7 +228,7 @@ function renderOffer(side) {
       select.append(new Option('No sign', ''));
       [...state.signs].sort((a, b) => b.boost - a.boost || a.name.localeCompare(b.name)).forEach(option => select.append(new Option(`${option.name} ${boostText(option.boost)}`, option.name)));
       select.value = entry.sign;
-      select.addEventListener('change', () => { offers[side].units.delete(key); addToOffer(side, entry.index, select.value, entry.quantity); renderOffer(side); });
+      select.addEventListener('change', () => { offers[side].units.delete(key); addToOffer(side, entry.index, select.value, entry.serial, entry.quantity); renderOffer(side); });
       signLabel.append(select); card.append(signLabel);
     }
     const label = element('label', 'quantity', 'Qty ');
@@ -228,13 +249,14 @@ function renderPicker() {
   const results = document.querySelector('#picker-results'); results.replaceChildren();
   state.allItems.forEach((item, index) => {
     if (!`${item.name} ${item.rarity}`.toLowerCase().includes(query)) return;
+    const ranges = serialRanges(item), priced = ranges?.filter(pricedRange).map(numericValue);
     const value = numericValue(item);
     const button = element('button', 'picker-item'); button.type = 'button';
-    button.disabled = value === null || !Number.isFinite(value) || value < 0;
+    button.disabled = ranges ? !priced.length : value === null || !Number.isFinite(value) || value < 0;
     if (item.image) { const image = element('img'); image.src = item.image; image.alt = ''; image.loading = 'lazy'; image.addEventListener('error', () => image.remove()); button.append(image); }
-    const details = element('span'); details.append(element('strong', '', item.name), element('small', '', `${item.rarity} · ${button.disabled ? 'Value unavailable' : `${displayAmount(value)} ${displayUnit()}`}`)); button.append(details, element('span', '', '+'));
+    const details = element('span'); details.append(element('strong', '', item.name), element('small', '', `${item.rarity} · ${button.disabled ? 'Value unavailable' : ranges ? `${displayAmount(Math.min(...priced))} – ${displayAmount(Math.max(...priced))} ${displayUnit()} by serial` : `${displayAmount(value)} ${displayUnit()}`}`)); button.append(details, element('span', '', '+'));
     button.addEventListener('click', () => {
-      addToOffer(pickerSide, index, '', 1);
+      addToOffer(pickerSide, index, '', defaultSerial(item), 1);
       renderOffer(pickerSide); document.querySelector('#unit-picker').close();
     });
     results.append(button);
@@ -278,7 +300,7 @@ ticketDisplayToggles.forEach(toggle => {
     ticketDisplayToggles.forEach(other => other.setAttribute('aria-pressed', String(state.showTickets)));
     try { localStorage.setItem('atd.showTickets', String(state.showTickets)); } catch { /* Works without storage. */ }
     if (state.allItems.length) render();
-    updateBalance();
+    for (const side of ['your', 'their']) renderOffer(side);
     if (document.querySelector('#unit-picker').open) renderPicker();
     if (aiResult.result) renderAiResult(aiResult.result);
     if (adviceResult.result) renderAdviceResult(adviceResult.result);
@@ -296,7 +318,8 @@ function tradeSide(title, side) {
     const row = element('li');
     if (line.image) { const image = element('img'); image.src = line.image; image.alt = ''; image.addEventListener('error', () => image.remove()); row.append(image); }
     const details = element('span');
-    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}${line.sign ? ` · ${line.sign.name} sign` : ''}`), element('small', '', `${displayAmount(line.value)} each${line.sign ? ` (${boostText(line.sign.boost)})` : ''} · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
+    const serialText = line.serialRange ? ` · Serial ${line.serialRange.label}${line.serialRange.note ? ` (${line.serialRange.note})` : ''}` : '';
+    details.append(element('strong', '', `${line.quantity > 1 ? `${line.quantity}× ` : ''}${line.name}${line.serial ? ` #${line.serial}` : ''}${line.sign ? ` · ${line.sign.name} sign` : ''}`), element('small', '', `${line.unpriced ? 'No listed value' : `${displayAmount(line.value)} each`}${line.sign ? ` (${boostText(line.sign.boost)})` : ''}${serialText} · Demand ${line.demand || '—'}${line.status && line.status !== 'stable' ? ` · ${line.status}` : ''}`));
     row.append(details, element('b', '', displayAmount(line.total)));
     list.append(row);
   }
@@ -321,7 +344,7 @@ function renderAiResult(result) {
     header.dataset.result = result.verdict || 'none';
     const diff = Math.abs(result.difference);
     const percent = Math.round(diff / Math.max(result.gives.total, result.gets.total) * 1000) / 10;
-    const summary = !result.verdict ? 'This trade has a unit whose value depends on its serial number. See the note below.' : result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${displayAmount(diff)} more ${state.showTickets ? 'tickets of value' : 'value'} (${percent}%). Fair means within ${result.fairMargin * 100}%.`;
+    const summary = !result.verdict ? 'A unit in this trade has no listed value for its serial. See the note below.' : result.difference === 0 ? 'Both sides have the same listed value.' : `You ${result.difference > 0 ? 'get' : 'give'} ${displayAmount(diff)} more ${state.showTickets ? 'tickets of value' : 'value'} (${percent}%). Fair means within ${result.fairMargin * 100}%.`;
     header.append(element('span', 'ai-letter', letter), element('div', '', ''));
     header.lastChild.append(element('strong', '', label), element('p', '', summary));
     const sides = element('div', 'ai-sides');

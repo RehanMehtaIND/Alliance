@@ -6,7 +6,9 @@
   {"name": "petcch", "role": "Developer", "boost": 75, "demand": "7.9/10"},
   {"name": "DenisPablo", "role": "Developer", "boost": 75, "demand": "3.5/10"},
   {"name": "666", "role": "Developer", "boost": 75, "demand": "3.5/10"},
+  {"name": "Uncle Gman", "role": "Community Manager / Elite Tester", "boost": 70, "demand": "6.7/10", "aliases": ["gman_9863"]},
   {"name": "John Vallon", "role": "Server Holder", "boost": 70, "demand": "8.4/10"},
+  {"name": "Elijah Mikaelson", "role": "Assistant Manager / Elite Tester", "boost": 60, "demand": "5/10", "aliases": ["ThehellTRex"]},
   {"name": "MrStephen HawkingTime", "role": "Manager", "boost": 50, "demand": "4.5/10"},
   {"name": "niahuser", "role": "Partner / Value Maker", "boost": 40, "demand": "6/10"},
   {"name": "tv_man4890", "role": "Value Maker", "boost": 40, "demand": "3/10"},
@@ -34,8 +36,11 @@
   {"name": "Cute Sthaley Cowboy Guy", "role": "Elite Tester", "boost": 25, "demand": "3.1/10"},
   {"name": "sdfgaertq3", "role": "Elite Tester", "boost": 25, "demand": "2.9/10"},
   {"name": "unknown-user", "role": "Elite Tester", "boost": 25, "demand": "2.9/10"},
+  {"name": "NaruDaniYT", "role": "Partner", "boost": 22.5, "demand": null, "aliases": ["NaruDaniYT🔥", "NaruDaniy"], "note": "Value may rise if views rise."},
   {"name": "my wrist hurts from osu!mania", "role": "Partner", "boost": 20, "demand": "2.9/10"},
+  {"name": "sotakun5", "role": "Partner", "boost": 20, "demand": null},
   {"name": "Focalors", "role": "Partner", "boost": 17.5, "demand": "4/10", "aliases": ["꧁༺ 𝔉𝔬𝔠𝔞𝔩𝔬𝔯𝔰 ༻꧂"]},
+  {"name": "LG", "role": "Partner", "boost": 15, "demand": null, "aliases": ["ryoki tenkai", "globgobgabgalab_no"]},
   {"name": "Ben", "role": "Partner", "boost": 15, "demand": "1.9/10"},
   {"name": "Żabcio_PL", "role": "Partner", "boost": 15, "demand": "2/10"},
   {"name": "Warfare", "role": "Partner", "boost": 15, "demand": "1.2/10"},
@@ -50,5 +55,6 @@
   {"name": "Remilias sons cat", "role": "Partner", "boost": 12.5, "demand": "2/10"},
   {"name": "TA_HI", "role": "Partner", "boost": 12, "demand": "2/10"},
   {"name": "sema", "role": "Partner", "boost": 10, "demand": "2/10"},
-  {"name": "Soul", "role": "Partner", "boost": 10, "demand": "2.3/10"}
+  {"name": "Soul", "role": "Partner", "boost": 10, "demand": "2.3/10"},
+  {"name": "The_gourdy", "role": "Demoted", "boost": 0, "demand": "0/10", "aliases": ["ileorealxd", "ileo_realxd"]}
 ]
