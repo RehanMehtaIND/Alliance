@@ -302,6 +302,42 @@
     "status": "stable"
   },
   {
+    "image": "",
+    "name": "Pirate Large TV Man",
+    "rarity": "Event",
+    "price": 250,
+    "value": 49000,
+    "demand": "10/10",
+    "status": "dropping"
+  },
+  {
+    "image": "",
+    "name": "Poseidon Camera Man",
+    "rarity": "Event",
+    "price": 250,
+    "value": 49000,
+    "demand": "10/10",
+    "status": "dropping"
+  },
+  {
+    "image": "",
+    "name": "Prototype Cameraman",
+    "rarity": "Event",
+    "price": 250,
+    "value": 36000,
+    "demand": "10/10",
+    "status": "dropping"
+  },
+  {
+    "image": "",
+    "name": "Prototype Large Cameraman",
+    "rarity": "Event",
+    "price": 250,
+    "value": 48000,
+    "demand": "10/10",
+    "status": "dropping"
+  },
+  {
     "image": "./TowerImages/PartyCrate.png",
     "name": "Party Crate",
     "rarity": "Event",
