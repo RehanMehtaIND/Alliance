@@ -160,16 +160,18 @@ body { min-width: 0; }
 .list-section, .calculator-section, .ai-section, .offer-panel { min-width: 0; }
 .items-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .items-grid .card { aspect-ratio: auto; }
-.items-grid .image-area { flex: 1; }
+/* The art slot has a fixed height so cards keep one size whether an image loads, fails or is missing. */
+.items-grid { --art-height: clamp(120px, 14vw, 190px); }
+.items-grid .image-area { flex: 1; padding-top: calc(var(--art-height) + 10px); }
 .items-grid .image-area img {
-  position: static;
+  position: absolute;
+  top: 10px;
+  left: 0;
   width: 100%;
-  height: clamp(120px, 14vw, 190px);
-  flex-shrink: 0;
+  height: var(--art-height);
   padding: 8px;
 }
-.items-grid .image-area:has(.placeholder:not([hidden])) { padding-top: 140px; }
-.items-grid .image-area:has(img) { padding-top: 10px; }
+.items-grid .placeholder { top: calc(10px + var(--art-height) / 2 - 20px); left: 50%; transform: translateX(-50%); }
 .items-grid .card h2 { margin-top: auto; }
 .card-bottom .value { flex-wrap: wrap; justify-content: center; white-space: normal; }
 .pagination { flex-wrap: wrap; max-width: 100%; }
@@ -236,7 +238,7 @@ body:has(#serial-values[open]) { overflow: hidden; }
   .rarity-filter > span { display: none; }
   .search input, .sort select, .calculator-section input, #picker-search { font-size: 16px; }
   .items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .items-grid .image-area img { height: clamp(100px, 30vw, 180px); }
+  .items-grid { --art-height: clamp(100px, 30vw, 180px); }
   .items-grid .card h2 { font-size: 14px; }
   .card-bottom { flex-direction: column; justify-content: center; }
   .offer-units { min-height: 140px; padding: 16px 0; }
@@ -256,7 +258,7 @@ body:has(#serial-values[open]) { overflow: hidden; }
   .top-navigation .nav-button, .top-navigation #list-tab { flex-direction: column; gap: 3px; font-size: 11px; }
   .toolbar .rarity-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .items-grid { grid-template-columns: minmax(0, 1fr); }
-  .items-grid .image-area img { height: 170px; }
+  .items-grid { --art-height: 170px; }
 }
 @media (pointer: coarse) {
   .search input, .sort select, .calculator-section input, #picker-search { font-size: 16px; }

@@ -178,7 +178,7 @@ async function init() {
   }
 }
 
-const TICKET_VALUE = 55;
+const TICKET_VALUE = 40;
 const MAX_AMOUNT = 1000000;
 // Units are keyed by unit, sign and serial range, so differently signed or serialed copies stay separate.
 const offers = { your: { units: new Map(), tickets: 0 }, their: { units: new Map(), tickets: 0 } };
