@@ -20,7 +20,7 @@ const message = document.querySelector('#message');
 const numberFormat = new Intl.NumberFormat('en-US');
 // Tickets show as whole numbers; tiny non-zero amounts show as "<1" rather than 0.
 const ticketText = points => { const tickets = points / TICKET_VALUE; return tickets > 0 && tickets < 0.5 ? '<1' : numberFormat.format(Math.round(tickets)); };
-const rarityNames = ['Basic', 'Uncommon', 'Rare', 'Epic', 'Legendary', 'Mythic', 'Exclusive', 'Event'];
+const rarityNames = ['Legendary', 'Mythic', 'Exclusive', 'Event'];
 const numericValue = item => item.value == null || String(item.value).trim() === '' ? null : Number(String(item.value).replaceAll(',', ''));
 const rarityKey = item => String(item.rarity || 'Unknown').toLowerCase();
 // Units with a serials table are valued by serial range; a null range value means not in circulation.
