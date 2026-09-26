@@ -198,9 +198,9 @@
     "name": "Builder Camera Man",
     "rarity": "Event",
     "price": 250,
-    "value": 5500,
+    "value": 6000,
     "demand": "2/10",
-    "status": "dropping"
+    "status": "rising"
   },
   {
     "image": "./TowerImages/PartyCameraMan.png",
@@ -219,6 +219,15 @@
     "value": 12,
     "demand": "2/10",
     "status": "stable"
+  },
+  {
+    "image": "",
+    "name": "Helicopter Cameraman",
+    "rarity": "Event",
+    "price": 250,
+    "value": 7000,
+    "demand": "10/10",
+    "status": "fluctuating"
   },
   {
     "image": "",
@@ -252,9 +261,9 @@
     "name": "Prototype Large Cameraman",
     "rarity": "Event",
     "price": 250,
-    "value": 48000,
+    "value": 60000,
     "demand": "10/10",
-    "status": "dropping"
+    "status": "fluctuating"
   },
   {
     "image": "./TowerImages/PartyCrate.png",
