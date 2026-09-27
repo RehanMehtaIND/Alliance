@@ -225,7 +225,7 @@
     "name": "Helicopter Cameraman",
     "rarity": "Event",
     "price": 250,
-    "value": 7000,
+    "value": 7500,
     "demand": "10/10",
     "status": "fluctuating"
   },
@@ -234,7 +234,7 @@
     "name": "Pirate Large TV Man",
     "rarity": "Event",
     "price": 250,
-    "value": 49000,
+    "value": 42000,
     "demand": "10/10",
     "status": "dropping"
   },
@@ -243,7 +243,7 @@
     "name": "Poseidon Camera Man",
     "rarity": "Event",
     "price": 250,
-    "value": 49000,
+    "value": 40000,
     "demand": "10/10",
     "status": "dropping"
   },
@@ -252,7 +252,7 @@
     "name": "Prototype Cameraman",
     "rarity": "Event",
     "price": 250,
-    "value": 36000,
+    "value": 38000,
     "demand": "10/10",
     "status": "dropping"
   },
@@ -261,9 +261,18 @@
     "name": "Prototype Large Cameraman",
     "rarity": "Event",
     "price": 250,
-    "value": 60000,
+    "value": 83000,
     "demand": "10/10",
     "status": "fluctuating"
+  },
+  {
+    "image": "",
+    "name": "Golden Camera Man",
+    "rarity": "Event",
+    "price": 250,
+    "value": 120000,
+    "demand": "6/10",
+    "status": "dropping"
   },
   {
     "image": "./TowerImages/PartyCrate.png",
